@@ -42,6 +42,65 @@ class ProfileUpdateTest extends TestCase
         $this->assertSame('test@example.com', $user->email);
     }
 
+    public function test_email_verification_status_is_cleared_when_the_email_address_is_changed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'new-email@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertNull($user->refresh()->email_verified_at);
+        $this->assertSame('new-email@example.com', $user->email);
+    }
+
+    public function test_invalid_email_does_not_change_email_or_verification_status(): void
+    {
+        $user = User::factory()->create();
+        $originalEmail = $user->email;
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('profile.edit'))
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'not-an-email',
+            ]);
+
+        $response
+            ->assertSessionHasErrors('email')
+            ->assertRedirect(route('profile.edit'));
+
+        $user->refresh();
+
+        $this->assertSame($originalEmail, $user->email);
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_verified_routes_redirect_to_verification_after_email_change(): void
+    {
+        $user = User::factory()->create();
+
+        $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'changed@example.com',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $response = $this->actingAs($user->refresh())->get(route('appearance.edit'));
+
+        $response->assertRedirect(route('verification.notice'));
+    }
+
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()
     {
         $user = User::factory()->create();
