@@ -154,7 +154,7 @@ export default defineQuickSpec({
         "`tests/Feature/Settings/ProfileUpdateTest.php` に、メール変更で `email_verified_at` が null になること、メール変更後の `security.edit` が `verification.notice` にリダイレクトすること、不正メールで確認状態が変わらないこと、および INV-001 を確かめるテストを追加する。",
       refs: ["FR-001", "FR-002", "INV-001"],
       verifies: ["AC-001", "AC-003", "AC-004", "INV-001"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "プロフィール更新で未確認状態を永続化する",
