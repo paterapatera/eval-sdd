@@ -151,6 +151,42 @@ export default defineQuickSpec({
       "tests/Feature/Settings/ProfileUpdateTest.php",
     ],
   },
+  acceptanceGuide: {
+    setup: [
+      { run: "./vendor/bin/sail artisan migrate --force", note: "手元の DB を最新にする" },
+      { run: "./vendor/bin/sail npm run build" },
+    ],
+    server: {
+      run: "./vendor/bin/sail up -d",
+      url: "http://localhost:8000",
+      timeoutSec: 120,
+    },
+    accounts: [
+      {
+        id: "test@example.com",
+        password: "password",
+        role: "メール確認済みの一般利用者（data のコマンドで用意）",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-004"],
+        run:
+          './vendor/bin/sail artisan tinker --execute \'App\\Models\\User::query()->updateOrCreate(["email" => "test@example.com"], ["name" => "Test User", "email_verified_at" => now(), "password" => \\Illuminate\\Support\\Facades\\Hash::make("password")]);\'',
+        expect: "test@example.com が存在し、email_verified_at が null ではない",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: '"component":"auth\\/login"',
+        note: "Sail（APP_PORT=8000）でログイン画面が配信されること",
+      },
+    ],
+    notes: [
+      "AC-004: test@example.com / password でログイン → /settings/profile で別の有効なメールアドレスに変更して Save → /settings/security を開き、セキュリティ設定ではなくメール確認の案内（Please verify your email address、/email/verify）が表示されることを確認する",
+    ],
+  },
   tasks: {
     "T-001": {
       title: "再現テストを書いて失敗することを確かめる",
@@ -176,7 +212,7 @@ export default defineQuickSpec({
         "Browser テストで、メール変更保存後に /settings/security を開いたときメール確認案内が表示されることを AC-004 として確かめる。",
       refs: ["FR-002"],
       verifies: ["AC-004"],
-      status: "doing",
+      status: "done",
     },
   },
 });
