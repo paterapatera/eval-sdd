@@ -158,10 +158,58 @@ export default defineQuickSpec({
   approach:
     "メールアドレスが変更される場合は `save()` の前に `email_verified_at` を null に設定し、1 回の save でメールと確認状態をまとめて永続化する。`verified` ミドルウェアと `routes/settings.php` のルート分割は既存のまま利用する。",
   impact: {
-    create: ["tests/Browser/ProfileEmailVerificationTest.php"],
+    create: [
+      "tests/Browser/ProfileEmailVerificationTest.php",
+      "database/seeders/AcceptanceGh1UserSeeder.php",
+    ],
     modify: [
       "app/Http/Controllers/Settings/ProfileController.php",
       "tests/Feature/Settings/ProfileUpdateTest.php",
+    ],
+  },
+  acceptanceGuide: {
+    setup: [
+      {
+        run: "./vendor/bin/sail up -d",
+        note: "Sail が未起動の場合にコンテナを起動する",
+      },
+      {
+        run: "./vendor/bin/sail artisan migrate --force",
+      },
+      {
+        run: "./vendor/bin/sail npm run build",
+        note: "フロントの変更を反映する",
+      },
+    ],
+    server: {
+      run: "./vendor/bin/sail up -d",
+      url: "http://localhost:8000/login",
+      timeoutSec: 120,
+    },
+    accounts: [
+      {
+        id: "gh1-acceptance@example.com",
+        password: "password",
+        role: "確認済みの一般利用者（GH-1 受け入れテスト用）",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-002"],
+        run: "./vendor/bin/sail artisan db:seed --class=Database\\\\Seeders\\\\AcceptanceGh1UserSeeder",
+        expect:
+          "メール gh1-acceptance@example.com の利用者が 1 件存在し、email_verified_at が null ではない",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: '"component":"auth\\/login"',
+        note: "アプリが応答し、ログイン画面（Inertia）が返る",
+      },
+    ],
+    notes: [
+      "AC-002（人が確かめる）: 上記アカウントでログインし、/settings/profile でメールを別アドレス（例: gh1-changed@example.com）に変えて Save する。続けて /settings/security を開き、メール確認の案内（Resend verification email）が表示され、セキュリティ設定（Update password）が表示されないことを確かめる。",
     ],
   },
   tasks: {
@@ -189,7 +237,7 @@ export default defineQuickSpec({
         "`tests/Browser/ProfileEmailVerificationTest.php` で、確認済み利用者がプロフィールでメール変更後に `/settings/security` を開いたとき、メール確認の案内が表示されることを確かめる。",
       refs: ["FR-002"],
       verifies: ["AC-002"],
-      status: "doing",
+      status: "done",
     },
   },
 });
