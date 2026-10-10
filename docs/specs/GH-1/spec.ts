@@ -176,7 +176,7 @@ export default defineQuickSpec({
         "Browser テストで、メール変更保存後に /settings/security を開いたときメール確認案内が表示されることを AC-004 として確かめる。",
       refs: ["FR-002"],
       verifies: ["AC-004"],
-      status: "todo",
+      status: "doing",
     },
   },
 });
