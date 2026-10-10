@@ -180,7 +180,7 @@ export default defineQuickSpec({
       description:
         "`ProfileController::update` でメール変更時に `save()` 前へ `email_verified_at` の null 設定を移し、T-001 の Feature テストを通す。",
       refs: ["FR-001", "FR-002"],
-      status: "todo",
+      status: "done",
     },
     "T-003": {
       title: "メール変更後のセキュリティ画面アクセスを E2E で確かめる",
