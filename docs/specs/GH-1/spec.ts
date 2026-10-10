@@ -171,7 +171,56 @@ export default defineQuickSpec({
         "`tests/Browser/ProfileEmailVerificationTest.php` で、確認済み利用者がプロフィールでメール変更後に `/settings/security` を開いたとき、メール確認の案内が表示されることを確かめる（AC-002）。",
       refs: ["FR-002"],
       verifies: ["AC-002"],
-      status: "doing",
+      status: "done",
     },
+  },
+  acceptanceGuide: {
+    setup: [
+      {
+        run: "./vendor/bin/sail artisan migrate --force",
+        note: "ローカル DB にマイグレーションを適用する（Sail 利用を想定）",
+      },
+      {
+        run: "./vendor/bin/sail npm run build",
+        note: "Inertia 画面用のフロントビルド",
+      },
+    ],
+    server: {
+      run: "./vendor/bin/sail up -d",
+      url: "http://localhost:8000/login",
+      timeoutSec: 120,
+    },
+    accounts: [
+      {
+        id: "acceptance-gh1@example.com",
+        password: "password",
+        role: "AC-002 開始時点の確認済み利用者",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-002"],
+        run:
+          './vendor/bin/sail artisan tinker --execute \'App\\Models\\User::query()->where("email", "like", "acceptance-gh1%")->delete(); App\\Models\\User::factory()->create(["name" => "Acceptance GH-1", "email" => "acceptance-gh1@example.com", "email_verified_at" => now()]);\'',
+        expect: "acceptance-gh1@example.com の確認済み利用者が 1 件存在する",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: "auth\\/login",
+        note: "アプリが応答しログイン画面（Inertia）が返る",
+      },
+      {
+        url: "http://localhost:8000/email/verify",
+        status: 302,
+        note: "未ログインのときメール確認画面はログインへリダイレクトされる",
+      },
+    ],
+    notes: [
+      "AC-002: acceptance-gh1@example.com / password でログインする。",
+      "/settings/profile でメールアドレスを acceptance-gh1-changed@example.com に変更して Save する。",
+      "/settings/security を開き、URL が /email/verify になり「Resend verification email」が表示され、セキュリティ設定（Security settings）が表示されないことを確認する。",
+    ],
   },
 });
