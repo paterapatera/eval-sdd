@@ -44,3 +44,5 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+# SDD: 人向けのHTMLの出力先
+.sdd/

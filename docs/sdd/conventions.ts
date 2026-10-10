@@ -1,0 +1,102 @@
+import { defineConventions } from "./schema/mod.ts";
+
+export default defineConventions({
+  "CONV-001": {
+    topic: "PHP コードスタイル",
+    rule: "Laravel Pint の設定に従い、コミット前に整形する。",
+    source: "composer.json（scripts.lint / lint:check）",
+    enforcedBy: "gate",
+    tool: "Laravel Pint",
+    config: ["composer.json"],
+  },
+  "CONV-002": {
+    topic: "PHP 静的解析",
+    rule: "PHPStan（Larastan）level max と strict-rules・dead-code・認知複雑度の設定に従う。",
+    source: "phpstan.neon",
+    enforcedBy: "gate",
+    tool: "PHPStan / Larastan",
+    config: ["phpstan.neon"],
+  },
+  "CONV-003": {
+    topic: "PHP モジュール境界",
+    rule: "Deptrac のレイヤーと ruleset に従い、許可された依存方向だけを使う。",
+    source: "deptrac.yaml",
+    enforcedBy: "gate",
+    tool: "Deptrac",
+    config: ["deptrac.yaml"],
+  },
+  "CONV-004": {
+    topic: "重複コード",
+    rule: "jscpd の設定（app・Modules・resources/js）に従い、重複を品質ゲートで検出する。",
+    source: ".jscpd.json",
+    enforcedBy: "gate",
+    tool: "jscpd",
+    config: [".jscpd.json"],
+  },
+  "CONV-005": {
+    topic: "TypeScript 型チェック",
+    rule: "tsconfig.json の strict 設定に従い、`npm run types:check`（tsc --noEmit）を通す。",
+    source: "tsconfig.json",
+    enforcedBy: "gate",
+    tool: "TypeScript compiler",
+    config: ["tsconfig.json"],
+  },
+  "CONV-006": {
+    topic: "フロントエンドの lint / チェック",
+    rule: "vite-plus の `vp check`（npm run check）の結果に従う。自動修正は `npm run check:fix`。",
+    source: "package.json",
+    enforcedBy: "gate",
+    tool: "vite-plus (vp check)",
+    config: ["package.json"],
+  },
+  "CONV-007": {
+    topic: "Inertia ページの置き場所",
+    rule: "画面は resources/js/pages/ に置き、サーバー側は Route::inertia またはコントローラから Inertia::render で名前を一致させる。",
+    example: "routes/web.php の 'dashboard' → pages/dashboard.tsx",
+    source: "routes/web.php、resources/js/pages/",
+    enforcedBy: "manual",
+  },
+  "CONV-008": {
+    topic: "UI コンポーネント",
+    rule:
+      "共通 UI は resources/js/components/ui/（Radix ベース）と既存の app-* レイアウト部品を使い、同等の部品をページ内に複製しない。",
+    source: "resources/js/components/ui/、resources/js/layouts/",
+    enforcedBy: "manual",
+  },
+  "CONV-009": {
+    topic: "スタイルとデザイントークン",
+    rule:
+      "Tailwind CSS v4 と resources/css/app.css の @theme トークンを使う。クラス結合は cn()（clsx + tailwind-merge）を使う。",
+    source: "resources/css/app.css、resources/js/lib/utils.ts",
+    enforcedBy: "manual",
+  },
+  "CONV-010": {
+    topic: "フロントのルート・フォーム URL",
+    rule: "ハードコード URL を避け、Wayfinder 生成の @/routes および @/actions を使う。",
+    source: "vite.config.ts（wayfinder プラグイン）、resources/js/routes/",
+    enforcedBy: "manual",
+  },
+  "CONV-011": {
+    topic: "PHP の型とメソッド",
+    rule: "メソッドには明示的な戻り値の型と引数の型を付ける。制御構造は常に波括弧を使う。",
+    source: "AGENTS.md（php rules）",
+    enforcedBy: "gate",
+    tool: "PHPStan / Larastan",
+    config: ["phpstan.neon"],
+  },
+  "CONV-012": {
+    topic: "Feature テストの DB",
+    rule: "Feature テストでは RefreshDatabase を使い、ファクトリでデータを用意する。",
+    example: "tests/Feature/Auth/AuthenticationTest.php",
+    source: "tests/Feature/",
+    enforcedBy: "manual",
+  },
+  "CONV-013": {
+    topic: "CI",
+    rule: "main への push と PR で composer ci:check を実行する（composer setup のあと）。",
+    source: ".github/workflows/tests.yml",
+    enforcedBy: "gate",
+    tool: "GitHub Actions",
+    config: [".github/workflows/tests.yml"],
+  },
+});
