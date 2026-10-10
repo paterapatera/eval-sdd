@@ -1,13 +1,34 @@
-includes:
-    - vendor/larastan/larastan/extension.neon
-    - vendor/nesbot/carbon/extension.neon
-
 parameters:
+    level: max
     paths:
-        - app/
+        - app
+        - Modules
         - bootstrap/app.php
-        - config/
-        - database/
-        - routes/
-
-    level: 7
+        - config
+        - database
+        - routes
+    cognitive_complexity:
+        class: 50
+        function: 8
+    checkMissingCallableSignature: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    ignoreErrors:
+        -
+            identifier: shipmonk.deadMethod
+            message: '#Unused Modules\\Demo\\Providers\\RouteServiceProvider::map#'
+            path: Modules/Demo/app/Providers/RouteServiceProvider.php
+        -
+            identifier: shipmonk.deadMethod
+            message: '#Unused App\\Actions\\Fortify\\ResetUserPassword::reset#'
+            path: app/Actions/Fortify/ResetUserPassword.php
+        -
+            identifier: shipmonk.deadMethod
+            message: '#Unused Database\\Factories\\UserFactory::unverified#'
+            path: database/factories/UserFactory.php
+        -
+            identifier: shipmonk.deadMethod
+            message: '#Unused Database\\Factories\\UserFactory::withTwoFactor#'
+            path: database/factories/UserFactory.php
+        -
+            identifier: method.nonObject
+            path: routes/*

@@ -26,4 +26,25 @@ trait PasswordValidationRules
     {
         return ['required', 'string', 'current_password'];
     }
+
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    protected function currentPasswordFieldRules(string $attribute = 'password'): array
+    {
+        return [
+            $attribute => $this->currentPasswordRules(),
+        ];
+    }
+
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    protected function updatePasswordFormRules(): array
+    {
+        return [
+            ...$this->currentPasswordFieldRules('current_password'),
+            'password' => $this->passwordRules(),
+        ];
+    }
 }

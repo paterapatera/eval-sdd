@@ -1,0 +1,26 @@
+deptrac:
+    paths:
+        - ./app
+        - ./Modules
+    exclude_files:
+        - '#.*\/tests\/.*#'
+    layers:
+        - name: AppShell
+          collectors:
+              - type: classLike
+                value: ^App\\
+        - name: ModuleDemo
+          collectors:
+              - type: classLike
+                value: ^Modules\\Demo\\
+        - name: Framework
+          collectors:
+              - type: classLike
+                value: ^(Illuminate|Laravel|Symfony|Nwidart|Inertia|Database|Livewire|Pest|PHPUnit|Mockery|Faker|Carbon)\\
+    ruleset:
+        AppShell:
+            - Framework
+        ModuleDemo:
+            - AppShell
+            - Framework
+        Framework: []

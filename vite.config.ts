@@ -5,12 +5,19 @@ import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import collectModuleAssetsPaths from './vite-module-loader.js';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
-export default defineConfig({
+export default defineConfig(async () => {
+    const input = await collectModuleAssetsPaths(
+        ['resources/css/app.css', 'resources/js/app.tsx'],
+        'Modules',
+    );
+
+    return {
     plugins: lazyPlugins(() => [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            input,
             refresh: true,
             fonts: [
                 bunny('Instrument Sans', {
@@ -74,4 +81,5 @@ export default defineConfig({
             stylesheet: 'resources/css/app.css',
         },
     },
+};
 });

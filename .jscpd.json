@@ -1,0 +1,16 @@
+{
+    "threshold": 0,
+    "reporters": ["console"],
+    "gitignore": true,
+    "minLines": 8,
+    "minTokens": 70,
+    "path": ["app", "Modules", "resources/js"],
+    "ignore": [
+        "**/vendor/**",
+        "**/node_modules/**",
+        "**/routes/**",
+        "**/resources/js/actions/**",
+        "**/resources/js/routes/**",
+        "**/resources/js/wayfinder/**"
+    ]
+}

@@ -100,9 +100,10 @@ return [
     'key' => env('APP_KEY'),
 
     'previous_keys' => [
-        ...array_filter(
+        ...array_values(array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', '')),
-        ),
+            static fn (string $key): bool => $key !== '',
+        )),
     ],
 
     /*
