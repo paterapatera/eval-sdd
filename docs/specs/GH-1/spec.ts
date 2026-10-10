@@ -189,7 +189,7 @@ export default defineQuickSpec({
         "`tests/Browser/ProfileEmailVerificationTest.php` で、確認済み利用者がプロフィールでメール変更後に `/settings/security` を開いたとき、メール確認の案内が表示されることを確かめる。",
       refs: ["FR-002"],
       verifies: ["AC-002"],
-      status: "todo",
+      status: "doing",
     },
   },
 });
