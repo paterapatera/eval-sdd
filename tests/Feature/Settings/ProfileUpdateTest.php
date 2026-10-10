@@ -60,6 +60,69 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
+    public function test_email_verification_is_reset_when_email_address_is_changed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'new-email@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $user->refresh();
+
+        $this->assertSame('new-email@example.com', $user->email);
+        $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_invalid_email_does_not_reset_verification_status(): void
+    {
+        $user = User::factory()->create();
+        $originalEmail = $user->email;
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('profile.edit'))
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'not-an-email',
+            ]);
+
+        $response
+            ->assertSessionHasErrors('email')
+            ->assertRedirect(route('profile.edit'));
+
+        $user->refresh();
+
+        $this->assertSame($originalEmail, $user->email);
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_security_settings_redirect_to_verification_after_email_change(): void
+    {
+        $user = User::factory()->create();
+
+        $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'changed@example.com',
+            ])
+            ->assertRedirect(route('profile.edit'));
+
+        $response = $this
+            ->actingAs(User::query()->findOrFail($user->id))
+            ->get(route('security.edit'));
+
+        $response->assertRedirect(route('verification.notice'));
+    }
+
     public function test_user_can_delete_their_account()
     {
         $user = User::factory()->create();
