@@ -16,7 +16,7 @@ class DashboardController extends Controller
     {
         $recentAnnouncements = [];
 
-        foreach (Announcement::latest()->get(['title'])->take(3) as $announcement) {
+        foreach (Announcement::latest()->forPage(1, 3)->get(['title']) as $announcement) {
             $recentAnnouncements[] = [
                 'title' => $announcement->title,
             ];
