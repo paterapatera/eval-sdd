@@ -19,7 +19,7 @@ export default defineTasks<typeof requirements, typeof design>()({
       description:
         "database/migrations/2026_10_11_000000_create_announcements_table.php（title string 100, body text, created_at index）、app/Models/Announcement.php（fillable title/body、$table 明示）、database/factories/AnnouncementFactory.php（title/body の既定値）を design の dataModels に合わせて作成する。",
       refs: ["Announcement", "FR-002", "FR-003"],
-      status: "todo",
+      status: "done",
     },
     "T-003": {
       title: "announcement:create コマンドを実装する",

@@ -14,7 +14,7 @@ export default defineDesign<typeof requirements>()({
       responsibility: "お知らせの永続化（title・body・created_at）と、新しい順のクエリの土台",
       files: [
         "app/Models/Announcement.php",
-        "database/migrations/2026_10_11_000000_create_announcements_table.php",
+        "database/migrations/2026_10_11_105237_create_announcements_table.php",
         "database/factories/AnnouncementFactory.php",
       ],
     },
@@ -157,7 +157,7 @@ export default defineDesign<typeof requirements>()({
       "app/Console/Commands/CreateAnnouncementCommand.php",
       "app/Http/Controllers/AnnouncementController.php",
       "app/Http/Controllers/DashboardController.php",
-      "database/migrations/2026_10_11_000000_create_announcements_table.php",
+      "database/migrations/2026_10_11_105237_create_announcements_table.php",
       "database/factories/AnnouncementFactory.php",
       "resources/js/pages/announcements.tsx",
       "resources/js/components/announcement-list-item.tsx",
