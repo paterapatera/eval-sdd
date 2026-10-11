@@ -2,10 +2,11 @@ import { defineArchitecture } from "./schema/mod.ts";
 
 export default defineArchitecture({
   basedOn: "4b207b5c64c6bf0de323cd1f1221e285f38f4bc8",
-  updatedAt: "2026-10-10",
+  updatedAt: "2026-10-11",
   summary:
     "Laravel を API・認証・ルーティングの土台とし、Inertia.js で React 画面を配信する Web アプリ。" +
-    "コアは app/ と routes/、機能拡張は nwidart/laravel-modules の Modules/ に置く。認証は Fortify、フロントのルート解決は Wayfinder。",
+    "コアは app/ と routes/、機能拡張は nwidart/laravel-modules の Modules/ に置く。認証は Fortify、フロントのルート解決は Wayfinder。" +
+    "利用者プロフィールは users.bio と設定画面で編集し、メール確認済み利用者向けに /members/{user} で公開表示する。",
   stack: [
     { name: "PHP", version: "^8.5", purpose: "サーバーサイド言語" },
     { name: "Laravel", version: "^13.17", purpose: "Web フレームワーク" },
@@ -60,5 +61,6 @@ export default defineArchitecture({
     "DDD 風の domain/application ディレクトリ分割は採用していない。境界は Deptrac の AppShell と各 Module に寄せている。",
     "Wayfinder が生成する resources/js/routes・actions は手編集しない。",
     "PHP 8.5 と PostgreSQL は Laravel Sail（compose.yaml）上で動かす。ホストの PHP 版と一致しない場合は `./vendor/bin/sail` 経由で artisan / composer を実行する。",
+    "メンバー公開プロフィールは MemberProfileController と pages/members/show。公開 props にメールアドレスは含めない。",
   ],
 });
