@@ -2,7 +2,7 @@ import { defineArchitecture } from "./schema/mod.ts";
 
 export default defineArchitecture({
   basedOn: "4b207b5c64c6bf0de323cd1f1221e285f38f4bc8",
-  updatedAt: "2026-10-10",
+  updatedAt: "2026-10-11",
   summary:
     "Laravel を API・認証・ルーティングの土台とし、Inertia.js で React 画面を配信する Web アプリ。" +
     "コアは app/ と routes/、機能拡張は nwidart/laravel-modules の Modules/ に置く。認証は Fortify、フロントのルート解決は Wayfinder。",
@@ -25,7 +25,7 @@ export default defineArchitecture({
     app: {
       path: "app/",
       responsibility:
-        "アプリケーションコア（HTTP コントローラ・ミドルウェア・モデル・Fortify Actions・プロバイダ）",
+        "アプリケーションコア（HTTP コントローラ・ミドルウェア・モデル・Fortify Actions・プロバイダ・Console コマンド）。利用者向けお知らせは Announcement モデル、AnnouncementController / DashboardController、announcement:create で提供する",
       dependsOn: [],
     },
     routes: {
@@ -35,7 +35,8 @@ export default defineArchitecture({
     },
     frontend: {
       path: "resources/js/",
-      responsibility: "Inertia ページ・レイアウト・UI コンポーネント・フロント共通処理",
+      responsibility:
+        "Inertia ページ・レイアウト・UI コンポーネント・フロント共通処理（お知らせ一覧 announcements、共有部品 announcement-list-item、ダッシュボードのお知らせセクション）",
       dependsOn: [],
     },
     modules_demo: {
@@ -60,5 +61,6 @@ export default defineArchitecture({
     "DDD 風の domain/application ディレクトリ分割は採用していない。境界は Deptrac の AppShell と各 Module に寄せている。",
     "Wayfinder が生成する resources/js/routes・actions は手編集しない。",
     "PHP 8.5 と PostgreSQL は Laravel Sail（compose.yaml）上で動かす。ホストの PHP 版と一致しない場合は `./vendor/bin/sail` 経由で artisan / composer を実行する。",
+    "お知らせは運用担当者が `php artisan announcement:create` で登録し、auth+verified 配下の GET /announcements とダッシュボードで閲覧する（画面からの CRUD は対象外）。",
   ],
 });
