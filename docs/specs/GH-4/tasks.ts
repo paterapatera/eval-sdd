@@ -27,7 +27,7 @@ export default defineTasks<typeof requirements, typeof design>()({
       description:
         "app/Console/Commands/CreateAnnouncementCommand.php を追加する。signature announcement:create {title} {body}。Validator で title 1〜100・body 1〜2000 を検証し、失敗時は stderr に日本語メッセージを出して FAILURE、成功時は Announcement::create して SUCCESS。",
       refs: ["CreateAnnouncementCommand", "FR-001"],
-      status: "todo",
+      status: "done",
     },
     "T-004": {
       title: "announcement:create の Feature テストを追加する",
