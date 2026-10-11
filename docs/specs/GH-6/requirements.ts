@@ -181,7 +181,10 @@ export default defineRequirements({
       decision: "notApplicable",
       reason: "単一利用者のプロフィール表示・更新のみで、性能目標の変更はない",
     },
-    "運用・保守性": { decision: "baseline" },
+    "運用・保守性": {
+      decision: "baseline",
+      waived: { "BNFR-002": "CI ワークフローは変更しない。品質ゲートは sdd-impl / finish で gate により確かめる" },
+    },
     移行性: {
       decision: "baseline",
       note: "既存利用者の bio は未設定（空）として扱う。checklist.existingData を参照",
@@ -190,7 +193,10 @@ export default defineRequirements({
       decision: "baseline",
       note: "メンバーページは名前・自己紹介・利用開始の月のみ。メールアドレスは表示しない（AC-004）",
     },
-    "システム環境・エコロジー": { decision: "baseline" },
+    "システム環境・エコロジー": {
+      decision: "baseline",
+      waived: { "BNFR-001": "phpunit の DB 接続設定は変更しない。既存の testing 環境のまま" },
+    },
   },
   issueCoverage: [],
   checklist: {
