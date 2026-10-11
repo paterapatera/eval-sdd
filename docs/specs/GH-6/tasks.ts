@@ -21,7 +21,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "app/Concerns/ProfileValidationRules.php の profileRules に bio => ['nullable','string','max:160'] を追加。" +
         "ProfileController は validated の fill のためコード変更は不要（bio が fillable に入れば保存される）。",
       refs: ["FR-001", "ProfileValidationRules", "ProfileController"],
-      status: "todo",
+      status: "done",
     },
     "T-003": {
       title: "プロフィール bio 更新の Feature テストを追加する",
