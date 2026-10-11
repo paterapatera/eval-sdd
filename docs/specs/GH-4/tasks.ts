@@ -77,7 +77,7 @@ export default defineTasks<typeof requirements, typeof design>()({
       description:
         "database/seeders/AnnouncementsAcceptanceSeeder.php と php artisan db:seed --class=AnnouncementsAcceptanceSeeder で、25件のお知らせ（タイトル「第N件」、created_at を順不同）と acceptance@example.com / password 確認済みユーザーを用意する。本番 Seeder には組み込まない。",
       refs: ["Announcement", "FR-002", "FR-003"],
-      status: "todo",
+      status: "done",
     },
     "T-010": {
       title: "お知らせ画面の Browser（E2E）テストを追加する",
@@ -96,7 +96,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "AC-015",
         "AC-016",
       ],
-      status: "todo",
+      status: "doing",
     },
   },
 });
