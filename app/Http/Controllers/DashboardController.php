@@ -14,13 +14,14 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request): Response
     {
-        $recentAnnouncements = [];
+        $paginated = Announcement::latest()->paginate(3, ['title'], 'page', 1);
 
-        foreach (Announcement::latest()->forPage(1, 3)->get(['title']) as $announcement) {
-            $recentAnnouncements[] = [
+        $recentAnnouncements = array_map(
+            fn (Announcement $announcement): array => [
                 'title' => $announcement->title,
-            ];
-        }
+            ],
+            $paginated->items(),
+        );
 
         return Inertia::render('dashboard', [
             'recentAnnouncements' => $recentAnnouncements,
