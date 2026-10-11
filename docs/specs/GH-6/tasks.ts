@@ -12,7 +12,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "app/Models/User.php の Fillable・@property に bio を追加。" +
         "database/factories/UserFactory.php に bio の optional 状態（省略時 null）を追加。",
       refs: ["FR-001", "AddBioToUsersTable", "User"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "プロフィール検証に bio ルールを追加する",
