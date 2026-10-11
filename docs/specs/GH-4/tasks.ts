@@ -61,7 +61,7 @@ export default defineTasks<typeof requirements, typeof design>()({
       description:
         "DashboardController（__invoke、recentAnnouncements に latest()->limit(3) の title）、routes/web.php の dashboard をコントローラに差し替え、resources/js/pages/dashboard.tsx に「Announcements」見出し・最新3件タイトル・「お知らせはありません」を表示（announcement-list-item のタイトルのみモード）。",
       refs: ["DashboardController", "DashboardPage", "AnnouncementListItem", "FR-003"],
-      status: "todo",
+      status: "done",
     },
     "T-008": {
       title: "サイドバーにお知らせナビを追加する",
