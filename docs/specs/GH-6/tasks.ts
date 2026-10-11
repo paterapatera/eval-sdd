@@ -104,7 +104,49 @@ export default defineTasks<typeof requirements, typeof design>()({
         "database/seeders/MemberProfileAcceptanceSeeder.php を新規作成（本番 DatabaseSeeder には登録しない）。" +
         "メール確認済みの閲覧者・表示対象ユーザー（名前・bio・created_at 固定）を用意し、README または acceptanceGuide でクラス名を参照できるようにする。",
       refs: ["FR-002"],
-      status: "todo",
+      status: "done",
     },
+  },
+  acceptanceGuide: {
+    setup: [
+      { run: "./vendor/bin/sail up -d", note: "Sail が未起動の場合" },
+      { run: "./vendor/bin/sail artisan migrate --force" },
+      { run: "./vendor/bin/sail npm run build" },
+    ],
+    server: {
+      run: "./vendor/bin/sail artisan serve --host=0.0.0.0 --port=80",
+      url: "http://localhost",
+      timeoutSec: 90,
+    },
+    accounts: [
+      {
+        id: "acceptance-viewer@example.com",
+        password: "password",
+        role: "メール確認済み（閲覧者）",
+      },
+      {
+        id: "yamada@example.com",
+        password: "password",
+        role: "メール確認済み（表示対象・山田太郎）",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-001", "AC-004", "AC-005", "AC-011"],
+        run: "./vendor/bin/sail artisan db:seed --class=MemberProfileAcceptanceSeeder",
+        expect: "yamada@example.com（bio あり）、empty-bio@example.com（bio なし）が存在する",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost",
+        contains: "Log in",
+        note: "アプリが応答すること",
+      },
+    ],
+    notes: [
+      "acceptance-viewer@example.com / password でログイン後、/settings/profile で Bio（AC-001）、/members/<山田のID> で公開プロフィール（AC-004 など）を確認する。",
+      "山田太郎のユーザー ID はシーダー後に ./vendor/bin/sail artisan tinker --execute 'echo App\\\\Models\\\\User::where(\"email\", \"yamada@example.com\")->value(\"id\");' で確認できる。",
+    ],
   },
 });
