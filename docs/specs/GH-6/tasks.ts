@@ -113,11 +113,6 @@ export default defineTasks<typeof requirements, typeof design>()({
       { run: "./vendor/bin/sail artisan migrate --force" },
       { run: "./vendor/bin/sail npm run build" },
     ],
-    server: {
-      run: "./vendor/bin/sail artisan serve --host=0.0.0.0 --port=80",
-      url: "http://localhost",
-      timeoutSec: 90,
-    },
     accounts: [
       {
         id: "acceptance-viewer@example.com",
@@ -139,9 +134,9 @@ export default defineTasks<typeof requirements, typeof design>()({
     ],
     check: [
       {
-        url: "http://localhost",
-        contains: "Log in",
-        note: "アプリが応答すること",
+        url: "http://localhost:8000",
+        contains: '"component":"welcome"',
+        note: "Sail 起動後（APP_URL）に Inertia の welcome が返ること",
       },
     ],
     notes: [
