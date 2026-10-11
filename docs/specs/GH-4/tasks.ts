@@ -44,7 +44,7 @@ export default defineTasks<typeof requirements, typeof design>()({
       description:
         "AnnouncementController@index（latest()->paginate(20)、publishedOn を Y-m-d）、routes/web.php に auth+verified グループで GET announcements（name announcements）、resources/js/pages/announcements.tsx（Head/breadcrumbs「Announcements」、空状態「お知らせはありません」、Laravel ページネーション Link）、resources/js/components/announcement-list-item.tsx（title/body/date 表示）を実装。wayfinder 生成後は @/routes の announcements() を使う。",
       refs: ["AnnouncementController", "AnnouncementsPage", "AnnouncementListItem", "FR-002"],
-      status: "todo",
+      status: "done",
     },
     "T-006": {
       title: "お知らせ一覧の HTTP Feature テストを追加する",
