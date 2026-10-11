@@ -96,4 +96,98 @@ class ProfileUpdateTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_profile_bio_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => $user->email,
+                'bio' => 'テスト用の自己紹介です',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertSame('テスト用の自己紹介です', $user->refresh()->bio);
+    }
+
+    public function test_profile_bio_accepts_one_hundred_sixty_characters(): void
+    {
+        $user = User::factory()->create();
+        $bio = str_repeat('a', 160);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => $user->email,
+                'bio' => $bio,
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertSame($bio, $user->refresh()->bio);
+    }
+
+    public function test_profile_bio_rejects_more_than_one_hundred_sixty_characters(): void
+    {
+        $user = User::factory()->create(['bio' => 'original']);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('profile.edit'))
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => $user->email,
+                'bio' => str_repeat('a', 161),
+            ]);
+
+        $response
+            ->assertSessionHasErrors('bio')
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertSame('original', $user->refresh()->bio);
+    }
+
+    public function test_profile_bio_can_be_cleared(): void
+    {
+        $user = User::factory()->create(['bio' => '以前の自己紹介']);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => $user->email,
+                'bio' => '',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertNull($user->refresh()->bio);
+    }
+
+    public function test_profile_can_be_updated_without_bio_field(): void
+    {
+        $user = User::factory()->create(['bio' => 'keep me']);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => 'Updated Name',
+                'email' => $user->email,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $user->refresh();
+
+        $this->assertSame('Updated Name', $user->name);
+        $this->assertSame('keep me', $user->bio);
+    }
+
 }

@@ -31,7 +31,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "actingAs で PATCH route('profile.update') を叩き DB と session errors を検証。",
       refs: ["FR-001", "ProfileController"],
       verifies: ["AC-002", "AC-003", "AC-010", "INV-001"],
-      status: "todo",
+      status: "done",
     },
     "T-004": {
       title: "未ログイン時のプロフィール設定アクセスを検証するテストを追加する",
