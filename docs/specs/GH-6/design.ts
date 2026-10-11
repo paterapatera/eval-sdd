@@ -142,6 +142,8 @@ export default defineDesign<typeof requirements>()({
       "resources/js/pages/members/show.tsx",
       "resources/js/components/ui/textarea.tsx",
       "tests/Feature/Members/MemberProfileShowTest.php",
+      "tests/Browser/MemberProfileTest.php",
+      "database/seeders/MemberProfileAcceptanceSeeder.php",
     ],
     modify: [
       "app/Models/User.php",
