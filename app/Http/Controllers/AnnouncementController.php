@@ -27,6 +27,7 @@ class AnnouncementController extends Controller
 
         return Inertia::render('announcements', [
             'announcements' => $announcements,
+            'emptyMessage' => 'お知らせはありません',
         ]);
     }
 }

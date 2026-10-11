@@ -23,11 +23,13 @@ type PaginatedAnnouncements = {
 
 type PageProps = {
     announcements: PaginatedAnnouncements;
+    emptyMessage: string;
 };
 
-const emptyMessage = 'お知らせはありません';
-
-export default function Announcements({ announcements: paginator }: PageProps) {
+export default function Announcements({
+    announcements: paginator,
+    emptyMessage,
+}: PageProps) {
     const hasAnnouncements = paginator.data.length > 0;
 
     return (

@@ -53,7 +53,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "tests/Feature/AnnouncementIndexTest.php で、ゲスト・未確認ユーザーが /announcements で 302（AC-006、AC-007）、存在しない page で 200 と空文言（AC-017）、確認済みユーザーで Inertia props の件数・並び（AC-004/015/016 のサーバー側）を assertInertia で検証する。composer test が CI で走る前提の回帰として BNFR-002 を covers。",
       refs: ["AnnouncementController", "FR-002", "FR-004"],
       verifies: ["AC-006", "AC-007", "AC-013", "AC-017", "BNFR-002"],
-      status: "todo",
+      status: "done",
     },
     "T-007": {
       title: "ダッシュボードにお知らせセクションを実装する",
