@@ -17,10 +17,13 @@ class CreateAnnouncementCommand extends Command
      */
     public function handle(): int
     {
+        $title = $this->argument('title');
+        $body = $this->argument('body');
+
         $validator = Validator::make(
             [
-                'title' => $this->argument('title'),
-                'body' => $this->argument('body'),
+                'title' => $title,
+                'body' => $body,
             ],
             [
                 'title' => ['required', 'string', 'max:100'],
@@ -42,7 +45,10 @@ class CreateAnnouncementCommand extends Command
             return self::FAILURE;
         }
 
-        Announcement::query()->create($validator->validated());
+        Announcement::query()->create([
+            'title' => $title,
+            'body' => $body,
+        ]);
 
         return self::SUCCESS;
     }

@@ -96,7 +96,49 @@ export default defineTasks<typeof requirements, typeof design>()({
         "AC-015",
         "AC-016",
       ],
-      status: "doing",
+      status: "done",
     },
+  },
+  acceptanceGuide: {
+    setup: [
+      {
+        run: "./vendor/bin/sail artisan migrate --force --no-interaction",
+        note: "お知らせテーブルを含め、DBを最新にする",
+      },
+      {
+        run: "./vendor/bin/sail npm run build",
+        note: "ダッシュボード・一覧画面のフロントをビルドする",
+      },
+    ],
+    accounts: [
+      {
+        id: "acceptance@example.com",
+        password: "password",
+        role: "メール確認済みの利用者",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-004", "AC-015", "AC-016"],
+        run: "./vendor/bin/sail artisan db:seed --class=AnnouncementsAcceptanceSeeder --no-interaction",
+        expect: "お知らせが25件（第1件〜第25件）、acceptance@example.com が存在する",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: "auth\\/login",
+        note: "Sail が起動していること（.env の APP_PORT、既定は 8000）",
+      },
+      {
+        url: "http://localhost:8000/dashboard",
+        status: 302,
+        note: "未ログイン時はログインへリダイレクトされる",
+      },
+    ],
+    notes: [
+      "受け入れテストでは acceptance@example.com / password でログインする。",
+      "シーダー実行後、サイドバーの「お知らせ」から一覧を開き、要件の受け入れ条件（HTMLの「受け入れテスト」章）を確認する。",
+    ],
   },
 });

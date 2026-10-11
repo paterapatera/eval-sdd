@@ -14,15 +14,12 @@ class AnnouncementController extends Controller
      */
     public function index(Request $request): Response
     {
-        $announcements = Announcement::query()
-            ->latest()
+        $announcements = Announcement::latest()
             ->paginate(20)
             ->through(fn (Announcement $announcement): array => [
                 'title' => $announcement->title,
                 'body' => $announcement->body,
-                'publishedOn' => $announcement->created_at
-                    ?->timezone(config('app.timezone'))
-                    ->format('Y-m-d') ?? '',
+                'publishedOn' => $announcement->created_at?->toDateString() ?? '',
             ]);
 
         return Inertia::render('announcements', [

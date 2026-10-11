@@ -164,6 +164,9 @@ export default defineDesign<typeof requirements>()({
       "tests/Feature/AnnouncementCreateCommandTest.php",
       "tests/Feature/AnnouncementIndexTest.php",
       "tests/Feature/DashboardAnnouncementsTest.php",
+      "tests/Feature/Invariants/AuthenticationHomeTest.php",
+      "tests/Browser/AnnouncementsTest.php",
+      "database/seeders/AnnouncementsAcceptanceSeeder.php",
     ],
     modify: [
       "routes/web.php",
