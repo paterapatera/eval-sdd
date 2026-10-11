@@ -36,7 +36,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "tests/Feature/AnnouncementCreateCommandTest.php で Artisan::call を実行し、AC-001（正常登録と DB 1件）、AC-002（100/2000文字境界）、AC-003・AC-018〜020（空・超過で失敗と stderr）を検証する。RefreshDatabase を使い testing の pgsql 接続で動作することで BNFR-001 を満たす。",
       refs: ["CreateAnnouncementCommand", "FR-001"],
       verifies: ["AC-001", "AC-002", "AC-003", "AC-018", "AC-019", "AC-020", "BNFR-001"],
-      status: "todo",
+      status: "done",
     },
     "T-005": {
       title: "お知らせ一覧の API・Inertia ページを実装する",
