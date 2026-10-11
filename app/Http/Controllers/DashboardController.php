@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,15 +14,13 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request): Response
     {
-        $titles = DB::table('announcements')
-            ->orderByDesc('created_at')
-            ->limit(3)
-            ->pluck('title');
+        $recentAnnouncements = [];
 
-        $recentAnnouncements = array_map(
-            static fn (string $title): array => ['title' => $title],
-            $titles->all(),
-        );
+        foreach (Announcement::latest()->get(['title'])->take(3) as $announcement) {
+            $recentAnnouncements[] = [
+                'title' => $announcement->title,
+            ];
+        }
 
         return Inertia::render('dashboard', [
             'recentAnnouncements' => $recentAnnouncements,
