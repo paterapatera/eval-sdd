@@ -69,7 +69,7 @@ export default defineTasks<typeof requirements, typeof design>()({
       description:
         "resources/js/components/app-sidebar.tsx の mainNavItems に title「お知らせ」、href announcements()、適切な lucide アイコンを追加する。",
       refs: ["AppSidebar", "FR-004"],
-      status: "todo",
+      status: "done",
     },
     "T-009": {
       title: "受け入れテスト用のお知らせデータシーダーを追加する",
