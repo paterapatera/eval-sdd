@@ -62,7 +62,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "bioDisplay は空なら「自己紹介はまだありません」。memberSinceLabel は created_at を「Y年n月から利用」。" +
         "routes/web.php の auth+verified グループに Route::get('members/{user}', ...)->name('members.show') を追加。",
       refs: ["FR-002", "FR-003", "MemberProfileController", "User"],
-      status: "todo",
+      status: "done",
     },
     "T-007": {
       title: "メンバープロフィール画面を実装する",
