@@ -7,6 +7,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
 import { send } from '@/routes/verification';
@@ -82,6 +83,25 @@ export default function Profile({
                                 <InputError
                                     className="mt-2"
                                     message={errors.email}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="bio">Bio</Label>
+
+                                <Textarea
+                                    id="bio"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.bio ?? ''}
+                                    name="bio"
+                                    maxLength={160}
+                                    rows={4}
+                                    placeholder="Tell others about yourself"
+                                />
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.bio}
                                 />
                             </div>
 

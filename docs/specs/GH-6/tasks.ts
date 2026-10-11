@@ -51,7 +51,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "resources/js/pages/settings/profile.tsx に Label「Bio」、textarea（name=bio、maxLength 160、defaultValue auth.user.bio）を追加。" +
         "resources/js/types/auth.ts の User に bio?: string | null を追加。npm run build または wayfinder でフォーム URL を維持。",
       refs: ["FR-001", "ProfileSettingsPage", "Textarea"],
-      status: "todo",
+      status: "done",
     },
     "T-006": {
       title: "メンバープロフィール API とルートを実装する",
