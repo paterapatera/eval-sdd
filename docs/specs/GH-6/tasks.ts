@@ -41,7 +41,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "ゲストの GET profile.edit と PATCH profile.update が login へリダイレクトされることを検証（INV-002）。",
       refs: ["INV-002", "ProfileController"],
       verifies: ["INV-002"],
-      status: "todo",
+      status: "done",
     },
     "T-005": {
       title: "プロフィール設定画面に Bio 入力を追加する",

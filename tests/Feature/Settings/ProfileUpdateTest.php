@@ -190,4 +190,20 @@ class ProfileUpdateTest extends TestCase
         $this->assertSame('keep me', $user->bio);
     }
 
+    public function test_guest_cannot_view_profile_settings(): void
+    {
+        $response = $this->get(route('profile.edit'));
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_guest_cannot_update_profile(): void
+    {
+        $response = $this->patch(route('profile.update'), [
+            'name' => 'Hacker',
+            'email' => 'hacker@example.com',
+        ]);
+
+        $response->assertRedirect(route('login'));
+    }
 }
