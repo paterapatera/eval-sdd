@@ -95,7 +95,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "AC-011: 改行入り bio が別行表示。UserFactory でデータ用意。",
       refs: ["FR-001", "FR-002", "ProfileSettingsPage", "MemberShowPage"],
       verifies: ["AC-001", "AC-004", "AC-005", "AC-011"],
-      status: "todo",
+      status: "done",
     },
     "T-010": {
       title: "受け入れテスト用の開発シーダーを追加する",
