@@ -11,7 +11,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "tests/Feature/Invariants/AuthenticationHomeTest.php を新規作成し、未ログインの GET route('dashboard') が login へ 302 すること（INV-001）、ログイン成功後 dashboard へリダイレクトすること（INV-002）、config('fortify.home') が '/dashboard' であること（INV-003）を RefreshDatabase で検証する。",
       refs: ["INV-001", "INV-002", "INV-003"],
       verifies: ["INV-001", "INV-002", "INV-003"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "お知らせのマイグレーション・モデル・ファクトリを追加する",
