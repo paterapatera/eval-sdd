@@ -82,7 +82,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "存在しない ID で 404。ゲストは login へ。unverified は verification.notice へ。",
       refs: ["FR-002", "FR-003", "MemberProfileController"],
       verifies: ["AC-006", "AC-007", "AC-008", "AC-009"],
-      status: "todo",
+      status: "done",
     },
     "T-009": {
       title: "プロフィールとメンバー表示の Browser テストを追加する",
