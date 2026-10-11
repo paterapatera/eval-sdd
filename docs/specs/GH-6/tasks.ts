@@ -71,7 +71,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "resources/js/pages/members/show.tsx を新規作成。props.member の name・memberSinceLabel・bioDisplay を表示。" +
         "自己紹介は whitespace-pre-wrap。メール欄は置かない。AppLayout 既定レイアウトを利用。",
       refs: ["FR-002", "MemberShowPage"],
-      status: "todo",
+      status: "done",
     },
     "T-008": {
       title: "メンバープロフィールの Feature テストを追加する",
