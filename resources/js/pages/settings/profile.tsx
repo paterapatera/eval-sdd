@@ -95,8 +95,6 @@ export default function Profile({
                                     defaultValue={auth.user.bio ?? ''}
                                     name="bio"
                                     maxLength={160}
-                                    rows={4}
-                                    placeholder="Tell others about yourself"
                                 />
 
                                 <InputError
