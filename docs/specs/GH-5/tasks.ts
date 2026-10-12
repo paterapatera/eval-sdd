@@ -11,7 +11,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "database/migrations/*_create_login_histories_table.php（design の定義）、app/Models/LoginHistory.php、database/factories/LoginHistoryFactory.php を作成。" +
         "app/Models/User.php に loginHistories() HasMany を追加。logged_at・ip_address を fillable/casts で扱う。",
       refs: ["FR-001", "LoginHistory", "User"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "Login イベントでログイン記録するリスナーを登録する",
