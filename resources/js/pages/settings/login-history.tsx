@@ -35,6 +35,7 @@ export default function LoginHistory({ entries, isEmpty }: Props) {
                         {entries.map((entry) => (
                             <li
                                 key={`${entry.loggedAt}-${entry.ipAddress}`}
+                                data-testid="login-history-entry"
                                 className="px-4 py-3 text-sm"
                             >
                                 <div className="font-medium">{entry.loggedAt}</div>

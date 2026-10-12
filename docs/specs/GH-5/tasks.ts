@@ -92,7 +92,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "11件で10行だけ表示（AC-012）。",
       refs: ["FR-003", "LoginHistoryPage", "SettingsLayout"],
       verifies: ["AC-004", "AC-005", "AC-007", "AC-008", "AC-012"],
-      status: "todo",
+      status: "done",
     },
     "T-008": {
       title: "受け入れテスト用のログイン履歴シーダーを追加する",
