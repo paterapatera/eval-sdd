@@ -44,7 +44,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "logged_at を Asia/Tokyo で Y-m-d H:i 文字列にし、Inertia::render('settings/login-history', { entries, isEmpty })。" +
         "routes/settings.php の auth グループに GET settings/login-history・name login-history.edit を追加。",
       refs: ["FR-002", "LoginHistoryController", "SettingsRoutes"],
-      status: "todo",
+      status: "done",
     },
     "T-005": {
       title: "ログイン履歴画面の Feature テストを追加する",
