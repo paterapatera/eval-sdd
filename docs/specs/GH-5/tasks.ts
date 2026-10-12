@@ -34,7 +34,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "既存と同様ログイン成功後に intended 画面へ遷移する（INV-001）。",
       refs: ["FR-001", "RecordUserLogin", "LoginHistory"],
       verifies: ["AC-001", "AC-002", "AC-003", "AC-010", "AC-011", "INV-001"],
-      status: "todo",
+      status: "done",
     },
     "T-004": {
       title: "ログイン履歴画面のルートとコントローラを追加する",
