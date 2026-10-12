@@ -20,7 +20,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "app/Listeners/RecordUserLogin.php で Login イベント時に user_id・logged_at（now UTC）・request()->ip() を LoginHistory::create。" +
         "app/Providers/AppServiceProvider.php の bootApplication で Event::listen(Login::class, RecordUserLogin::class) を登録。",
       refs: ["FR-001", "RecordUserLogin", "AppServiceProvider"],
-      status: "todo",
+      status: "done",
     },
     "T-003": {
       title: "ログイン記録の Feature テストを追加する",
