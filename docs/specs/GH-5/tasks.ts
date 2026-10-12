@@ -68,7 +68,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "INV-002",
         "INV-003",
       ],
-      status: "todo",
+      status: "done",
     },
     "T-006": {
       title: "ログイン履歴の Inertia ページと設定ナビを追加する",
