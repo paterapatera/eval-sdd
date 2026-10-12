@@ -78,7 +78,7 @@ export default defineTasks<typeof requirements, typeof design>()({
         "resources/js/layouts/settings/layout.tsx に「ログイン履歴」ナビ（Wayfinder の login-history.edit）。" +
         "npm run build または sail npm run build で Wayfinder 生成を反映。",
       refs: ["FR-002", "FR-003", "LoginHistoryPage", "SettingsLayout"],
-      status: "todo",
+      status: "done",
     },
     "T-007": {
       title: "ログイン履歴の Browser（E2E）テストを追加する",

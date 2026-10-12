@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,11 +19,12 @@ class LoginHistoryController extends Controller
             abort(403);
         }
 
-        $entries = $user->loginHistories()
-            ->orderByDesc('logged_at')
-            ->limit(10)
-            ->get()
-            ->map(fn ($history) => [
+        $user->load('loginHistories');
+
+        $entries = $user->loginHistories
+            ->sortByDesc('logged_at')
+            ->take(10)
+            ->map(static fn (LoginHistory $history) => [
                 'loggedAt' => $history->logged_at
                     ->timezone('Asia/Tokyo')
                     ->format('Y-m-d H:i'),
