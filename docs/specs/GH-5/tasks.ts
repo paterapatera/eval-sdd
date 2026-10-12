@@ -18,8 +18,8 @@ export default defineTasks<typeof requirements, typeof design>()({
       kind: "impl",
       description:
         "app/Listeners/RecordUserLogin.php で Login イベント時に user_id・logged_at（now UTC）・request()->ip() を LoginHistory::create。" +
-        "app/Providers/AppServiceProvider.php の bootApplication で Event::listen(Login::class, RecordUserLogin::class) を登録。",
-      refs: ["FR-001", "RecordUserLogin", "AppServiceProvider"],
+        "Laravel のイベント自動検出で購読する（AppServiceProvider への手動登録は二重記録になるため行わない）。",
+      refs: ["FR-001", "RecordUserLogin"],
       status: "done",
     },
     "T-003": {

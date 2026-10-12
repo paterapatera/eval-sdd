@@ -37,12 +37,6 @@ export default defineDesign<typeof requirements>()({
       files: ["app/Models/User.php"],
       asIs: "User モデルにログイン履歴の関連は無い",
     },
-    AppServiceProvider: {
-      kind: "modified",
-      responsibility: "変更なし（Login リスナーは Laravel のイベント自動検出に任せる）",
-      files: ["app/Providers/AppServiceProvider.php"],
-      asIs: "認証イベントのリスナー登録は無い",
-    },
     SettingsRoutes: {
       kind: "modified",
       responsibility: "GET /settings/login-history と login-history.edit ルート（auth ミドルウェア）",
@@ -138,10 +132,11 @@ export default defineDesign<typeof requirements>()({
       "resources/js/pages/settings/login-history.tsx",
       "tests/Feature/Auth/LoginHistoryRecordingTest.php",
       "tests/Feature/Settings/LoginHistoryTest.php",
+      "tests/Browser/LoginHistoryTest.php",
+      "database/seeders/LoginHistoryAcceptanceSeeder.php",
     ],
     modify: [
       "app/Models/User.php",
-      "app/Providers/AppServiceProvider.php",
       "routes/settings.php",
       "resources/js/layouts/settings/layout.tsx",
     ],
