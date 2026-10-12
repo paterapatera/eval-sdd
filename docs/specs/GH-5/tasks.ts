@@ -102,7 +102,46 @@ export default defineTasks<typeof requirements, typeof design>()({
         "固定の acceptance 用ユーザーに対し、0件・2件・11件の状態を Artisan オプションまたは複数メソッドで用意できるようにする。" +
         "sdd-impl 完了時の acceptanceGuide.data で参照する。",
       refs: ["FR-002"],
-      status: "todo",
+      status: "done",
     },
+  },
+  acceptanceGuide: {
+    setup: [
+      { run: "./vendor/bin/sail up -d", note: "Sail が未起動のとき" },
+      { run: "./vendor/bin/sail artisan migrate --force" },
+      { run: "./vendor/bin/sail npm run build" },
+    ],
+    accounts: [
+      {
+        id: "acceptance-login-history@example.com",
+        password: "acceptance-login-history",
+        role: "受け入れテスト用利用者",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-004", "AC-005", "AC-007", "AC-008", "AC-012"],
+        run:
+          "LOGIN_HISTORY_ACCEPTANCE_COUNT=2 ./vendor/bin/sail artisan db:seed --class=LoginHistoryAcceptanceSeeder --no-interaction",
+        expect: "acceptance-login-history@example.com のログイン履歴が2件（198.51.100.1 と 198.51.100.2）",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost/login",
+        contains: "Log in",
+        note: "アプリが応答すること",
+      },
+      {
+        url: "http://localhost/settings/login-history",
+        status: 302,
+        note: "未ログイン時はログインへリダイレクト（AC-006）",
+      },
+    ],
+    notes: [
+      "上記アカウントでログイン後、/settings/profile のナビに「ログイン履歴」があること（AC-007）、クリックで /settings/login-history（AC-008）を確認する。",
+      "AC-005: LOGIN_HISTORY_ACCEPTANCE_COUNT=0 でシーダーを再実行し、空状態「ログイン履歴はありません」を確認する。",
+      "AC-012: LOGIN_HISTORY_ACCEPTANCE_COUNT=11 でシーダーを再実行し、一覧が10件のみであることを確認する。",
+    ],
   },
 });

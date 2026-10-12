@@ -39,7 +39,7 @@ export default defineDesign<typeof requirements>()({
     },
     AppServiceProvider: {
       kind: "modified",
-      responsibility: "RecordUserLogin を Login イベントに登録",
+      responsibility: "変更なし（Login リスナーは Laravel のイベント自動検出に任せる）",
       files: ["app/Providers/AppServiceProvider.php"],
       asIs: "認証イベントのリスナー登録は無い",
     },
@@ -62,7 +62,6 @@ export default defineDesign<typeof requirements>()({
     { from: "LoginHistoryController", to: "User", label: "認証済み利用者のスコープ" },
     { from: "LoginHistoryPage", to: "SettingsLayout", label: "app.tsx の settings/* レイアウトスタック" },
     { from: "SettingsLayout", to: "LoginHistoryPage", label: "Wayfinder の login-history ルートへリンク" },
-    { from: "AppServiceProvider", to: "RecordUserLogin", label: "イベント登録" },
     { from: "SettingsRoutes", to: "LoginHistoryController", label: "ルート解決" },
     { from: "User", to: "LoginHistory", label: "hasMany" },
   ],
@@ -153,15 +152,15 @@ export default defineDesign<typeof requirements>()({
       decidedBy: "ai",
       context: "FR-001 はログインフロー完了時の記録を要求。二要素はチャレンジ前では記録しない（AC-002）。",
       decision:
-        "Illuminate\\Auth\\Events\\Login を RecordUserLogin で購読する。Fortify はセッション確立時にこのイベントを発火するため、二要素完了後・パスワードのみ・パスキー成功を同じ経路で扱える。",
+        "app/Listeners/RecordUserLogin の handle(Login) を Laravel のイベント自動検出で購読する（AppServiceProvider への手動登録は二重登録になるため行わない）。Fortify はセッション確立時に Login を発火する。",
       alternatives: [
+        {
+          option: "AppServiceProvider で Event::listen",
+          reason: "自動検出と併用すると Login が2回記録される",
+        },
         {
           option: "Fortify::authenticateThrough にフックを挿入",
           reason: "Fortify 内部フローへの結合が強く、INV-001 のリスクが高い",
-        },
-        {
-          option: "コントローラでログイン直後に手動記録",
-          reason: "パスキー・二要素の完了地点が分散し、漏れや二重記録のリスクがある",
         },
       ],
       adr: false,
@@ -196,7 +195,7 @@ export default defineDesign<typeof requirements>()({
     },
   ],
   traceability: {
-    "FR-001": ["RecordUserLogin", "LoginHistory", "AppServiceProvider"],
+    "FR-001": ["RecordUserLogin", "LoginHistory"],
     "FR-002": ["LoginHistoryController", "LoginHistoryPage", "LoginHistory", "User"],
     "FR-003": ["SettingsLayout", "SettingsRoutes", "LoginHistoryPage"],
   },
