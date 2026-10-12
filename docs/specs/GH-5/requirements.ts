@@ -219,7 +219,10 @@ export default defineRequirements({
       decision: "notApplicable",
       reason: "一覧表示の件数上限は機能要件の受け入れ条件で決め、性能目標の追加はしない",
     },
-    "運用・保守性": { decision: "baseline" },
+    "運用・保守性": {
+      decision: "baseline",
+      waived: { "BNFR-002": "本 issue は CI ワークフローと composer ci:check の対象を変えない" },
+    },
     移行性: {
       decision: "notApplicable",
       reason: "過去ログインは記録しないため、既存データの移行はない",
@@ -228,7 +231,10 @@ export default defineRequirements({
       decision: "baseline",
       note: "自分の記録のみ閲覧・記録漏れなしは機能要件と INV-003 で扱う",
     },
-    "システム環境・エコロジー": { decision: "baseline" },
+    "システム環境・エコロジー": {
+      decision: "baseline",
+      waived: { "BNFR-001": "本 issue は phpunit.xml の DB 接続設定を変えない" },
+    },
   },
   issueCoverage: [],
   checklist: {
