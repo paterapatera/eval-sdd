@@ -60,6 +60,45 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
+    public function test_email_verification_is_cleared_when_email_is_changed_with_only_case_difference(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'User@Example.com',
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'user@example.com',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_verified_routes_redirect_to_verification_notice_after_email_change(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'old@example.com',
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'new@example.com',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this
+            ->actingAs($user->refresh())
+            ->get(route('security.edit'))
+            ->assertRedirect(route('verification.notice'));
+    }
+
     public function test_user_can_delete_their_account()
     {
         $user = User::factory()->create();

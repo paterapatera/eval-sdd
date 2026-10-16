@@ -152,7 +152,7 @@ export default defineQuickSpec({
         "ProfileUpdateTest に、確認済みユーザーがメールアドレスを変えたあと email_verified_at が null になるテストと、続けて verified ルート（security）が確認案内へリダイレクトするテストを追加し、現状失敗することを確かめる",
       refs: ["FR-001", "FR-002"],
       verifies: ["AC-002", "AC-003", "INV-001"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "プロフィール更新でメール変更時に未確認へ戻す",
