@@ -139,7 +139,7 @@ export default defineQuickSpec({
         "ProfileUpdateTest に、メール変更後に email_verified_at が null になるテスト、大文字小文字のみの変更、確認メールが自動送信されないこと、名前のみ更新で確認済みのままのテストを追加し、再現部分が失敗することを確かめる",
       refs: ["FR-001", "FR-002"],
       verifies: ["AC-002", "INV-001", "INV-002"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "プロフィール更新で未確認状態を保存する",
