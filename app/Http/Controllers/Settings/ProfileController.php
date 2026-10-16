@@ -32,12 +32,17 @@ class ProfileController extends Controller
     {
         $user = $request->authenticatedUser();
 
-        $user->fill($request->validated());
-        $user->save();
+        $validated = $request->validated();
+        $originalEmail = $user->email;
 
-        if ($user->wasChanged('email')) {
+        $user->fill($validated);
+
+        $newEmail = $validated['email'] ?? $originalEmail;
+        if ($originalEmail !== $newEmail) {
             $user->email_verified_at = null;
         }
+
+        $user->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 

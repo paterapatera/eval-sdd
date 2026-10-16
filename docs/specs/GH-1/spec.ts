@@ -155,7 +155,7 @@ export default defineQuickSpec({
       description:
         "ProfileController::update でメール変更時に email_verified_at を null にして永続化し、T-001 のテストを通す",
       refs: ["FR-001", "FR-002"],
-      status: "todo",
+      status: "done",
     },
   },
 });
