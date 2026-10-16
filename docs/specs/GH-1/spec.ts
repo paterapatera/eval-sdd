@@ -138,7 +138,7 @@ export default defineQuickSpec({
   approach:
     "プロフィール更新でメールアドレスが変わる場合、`save()` の前に `email_verified_at` を null にし、1 回の保存で永続化する。確認が必要な画面への案内は既存の verified ミドルウェアに任せ、メール変更後に未確認状態が正しく保存されることをテストで確かめる。",
   impact: {
-    create: [],
+    create: ["tests/Browser/ProfileEmailChangeTest.php"],
     modify: [
       "app/Http/Controllers/Settings/ProfileController.php",
       "tests/Feature/Settings/ProfileUpdateTest.php",
@@ -169,7 +169,7 @@ export default defineQuickSpec({
         "Browser テストで、プロフィールでメールを変更したあと未確認案内が出ることと、`/settings/security` が `/email/verify` に回ることを確かめる",
       refs: ["FR-001", "FR-002"],
       verifies: ["AC-001", "AC-003"],
-      status: "todo",
+      status: "doing",
     },
   },
 });
