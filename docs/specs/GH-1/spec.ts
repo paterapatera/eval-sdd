@@ -147,7 +147,7 @@ export default defineQuickSpec({
         "ProfileUpdateTest に、メール変更で email_verified_at が null になること、大文字小文字のみの変更、名前のみ変更で確認済みのまま、メール変更後に security.edit へ GET すると verification.notice へリダイレクトされることを追加し、現状失敗することを確認する",
       refs: ["FR-001", "FR-002"],
       verifies: ["AC-001", "AC-002", "AC-003", "AC-004", "INV-001", "INV-002"],
-      status: "todo",
+      status: "done",
     },
     "T-002": {
       title: "プロフィール更新で確認状態を正しくリセットする",

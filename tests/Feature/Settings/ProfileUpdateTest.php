@@ -4,6 +4,8 @@ namespace Tests\Feature\Settings;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 class ProfileUpdateTest extends TestCase
@@ -58,6 +60,72 @@ class ProfileUpdateTest extends TestCase
             ->assertRedirect(route('profile.edit'));
 
         $this->assertNotNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_email_verification_status_is_cleared_when_email_address_is_changed(): void
+    {
+        $this->skipUnlessFortifyHas(Features::emailVerification());
+
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'new-address@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertNull($user->refresh()->email_verified_at);
+        Notification::assertNothingSent();
+    }
+
+    public function test_email_verification_status_is_cleared_when_only_email_casing_changes(): void
+    {
+        $this->skipUnlessFortifyHas(Features::emailVerification());
+
+        $user = User::factory()->create([
+            'email' => 'user@example.com',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'User@Example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_unverified_user_is_redirected_from_security_after_email_change(): void
+    {
+        $this->skipUnlessFortifyHas(Features::emailVerification());
+
+        $user = User::factory()->create();
+
+        $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'changed@example.com',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this
+            ->actingAs($user->refresh())
+            ->get(route('security.edit'))
+            ->assertRedirect(route('verification.notice'));
     }
 
     public function test_user_can_delete_their_account()
