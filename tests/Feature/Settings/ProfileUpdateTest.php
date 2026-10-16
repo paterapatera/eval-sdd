@@ -4,6 +4,7 @@ namespace Tests\Feature\Settings;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 class ProfileUpdateTest extends TestCase
@@ -100,7 +101,7 @@ class ProfileUpdateTest extends TestCase
 
     public function test_user_is_redirected_to_email_verification_after_changing_email(): void
     {
-        $this->skipUnlessFortifyHas(\Laravel\Fortify\Features::emailVerification());
+        $this->skipUnlessFortifyHas(Features::emailVerification());
 
         $user = User::factory()->create();
 
