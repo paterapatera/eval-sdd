@@ -145,10 +145,49 @@ export default defineQuickSpec({
   approach:
     "保存前に isDirty('email') を見て email_verified_at を null にし、1 回の save() でメールと確認状態をまとめて永続化する。メール変更後の security へのリダイレクトは verified ミドルウェアに任せ、Feature テストで確かめる。",
   impact: {
-    create: [],
+    create: ["tests/Browser/ProfileEmailVerificationTest.php"],
     modify: [
       "app/Http/Controllers/Settings/ProfileController.php",
       "tests/Feature/Settings/ProfileUpdateTest.php",
+    ],
+  },
+  acceptanceGuide: {
+    setup: [
+      {
+        run: "./vendor/bin/sail artisan migrate --force",
+        note: "テスト用 DB を最新にする",
+      },
+      {
+        run: "./vendor/bin/sail npm run build",
+        note: "フロントのビルド（Sail 上のアプリ表示用）",
+      },
+    ],
+    accounts: [
+      {
+        id: "acceptance-verified@example.com",
+        password: "password",
+        role: "確認済みの一般ユーザー（data のコマンドで作成）",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-001", "AC-004"],
+        run: './vendor/bin/sail artisan tinker --execute="\\App\\Models\\User::query()->where(\'email\', \'acceptance-verified@example.com\')->delete(); \\App\\Models\\User::factory()->create([\'email\' => \'acceptance-verified@example.com\']);"',
+        expect:
+          "acceptance-verified@example.com / password でログインでき、email_verified_at が null でない",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: "Log in",
+        note: "Sail が http://localhost:8000 で応答していること（APP_URL と一致）",
+      },
+    ],
+    notes: [
+      "人が確かめる AC-001: acceptance-verified@example.com でログイン → /settings/profile でメールを changed-acceptance@example.com に変えて Save → 「Your email address is unverified.」が表示される",
+      "人が確かめる AC-004: 上記の直後に /settings/security を開く → /email/verify に移り「Resend verification email」が表示される",
+      "名前だけ変更した場合（INV-001）は Feature テストで自動確認済み",
     ],
   },
   tasks: {
@@ -176,7 +215,7 @@ export default defineQuickSpec({
         "Browser テストで、メール変更後にプロフィール画面に未確認案内が出ること（AC-001）と、/settings/security へ行くと /email/verify の案内になること（AC-004）を確かめる",
       refs: ["FR-001", "FR-002"],
       verifies: ["AC-001", "AC-004"],
-      status: "todo",
+      status: "done",
     },
   },
 });
