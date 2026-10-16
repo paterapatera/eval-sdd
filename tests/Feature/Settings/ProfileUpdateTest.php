@@ -60,6 +60,63 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
+    public function test_email_verification_status_is_reset_when_the_email_address_is_changed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'new-email@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_email_verification_status_is_reset_when_only_email_letter_case_changes(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'user@example.com',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'User@Example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_user_is_redirected_to_email_verification_after_changing_email(): void
+    {
+        $this->skipUnlessFortifyHas(\Laravel\Fortify\Features::emailVerification());
+
+        $user = User::factory()->create();
+
+        $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'name' => $user->name,
+                'email' => 'changed@example.com',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $response = $this->actingAs($user->refresh())->get(route('security.edit'));
+
+        $response->assertRedirect(route('verification.notice'));
+    }
+
     public function test_user_can_delete_their_account()
     {
         $user = User::factory()->create();
