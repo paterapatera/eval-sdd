@@ -6,7 +6,6 @@ export default defineConfig({
   branchPrefix: "",
   staleBranchDays: 30,
   issueIdPrefix: "GH",
-  forge: { cli: "gh" },
   ui: true,
   commands: {
     format: "./vendor/bin/sail composer lint",
