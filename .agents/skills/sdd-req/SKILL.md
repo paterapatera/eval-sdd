@@ -22,8 +22,7 @@ disable-model-invocation: true
 - `docs/sdd/guides/asking-questions.md`: 質問のしかた（1件ずつ聞く）
 - `docs/sdd/guides/review-feedback.md`: 指摘を受けたときの手順
 
-`docs/sdd/deno.json` のタスクは、リポジトリのルートで `deno task --config docs/sdd/deno.json <タスク名>` として実行する。
-以下では `deno task <タスク名>` と略す。
+道具は、リポジトリのルートで `bun docs/sdd/scripts/<タスク名>.ts` として実行する。render は `bun docs/sdd/render/main.ts` である。
 
 ## 確認ポイント
 
@@ -32,6 +31,8 @@ disable-model-invocation: true
 1. **未確定の点の質問**（手順5）: `docs/sdd/guides/asking-questions.md` に従い、**1件ずつ**聞く。
    回答によって次に聞くべきことが変わるため、まとめて聞かない。質問ツールがあれば使い、1回の呼び出しに1問だけ入れる。
    **利用者から見える振る舞いで issue に明記されていないものは、既存のコードに既定の動きがあっても質問する**（推測で決めない）。
+   1つの質問で聞くのは1点だけにする（並び順と件数のように、2点を1つの選択肢にまとめない）。
+   回答が質問の一部にしか答えていなければ、残りを推奨で埋めず、次の質問で聞き直す。
 2. **要件全体の確認**（手順6）: 未確定の点がすべて解消した後に、HTMLで要件全体を確認してもらう。
    指摘を反映した結果、受け入れ条件が指摘の範囲を超えて変わった場合だけ、もう一度確認してもらう。
 
@@ -39,7 +40,7 @@ disable-model-invocation: true
 
 ## 1. 前提を確認する
 
-1. `deno task current` で issue の ID とモードを特定する。
+1. `bun docs/sdd/scripts/current.ts` で issue の ID とモードを特定する。
 2. `docs/specs/<ID>/issue.md` の「モード」が完全モードであることを確かめる。
    - issue.md が無い → sdd-start を案内して止まる。
    - 軽量モードになっている → sdd-quick を案内して止まる。
@@ -66,6 +67,16 @@ disable-model-invocation: true
 - issue とコードから決められないことは推測で埋めず、`openQuestions` に書く。選択肢と推奨も考えておく。
   利用者から見える振る舞い（文言、並び順、遷移先、既存の画面の扱い、不正な入力への対応）で issue に明記されていないものは、
   既存のコードに既定の動きがあっても `openQuestions` に書く。
+- この issue が作る・変える入力と表示を、`values` に1つずつ書く（変えない既存のものは書かない）。
+  値の種類（`kind`）を選ぶと、その種類の観点がすべて必須になる（欠けると型エラー）。観点ごとに、次のどれかを書く。
+  - 決めた（`decidedBy` に受け入れ条件の ID）。`basis` に出どころを書く。
+    出どころは、issue.md からそのまま引用した文（`issue`）、既存の振る舞いを決めているファイルのパス（`code`）、人の回答の ID（`answer`）のどれかである。
+    verify が、引用は issue.md にあるか、ファイルはあるか、回答の ID は `answers` にあるかを確かめる。推測は出どころにならない。
+  - 関係しない（`notApplicable` に理由）。人がそう答えたときだけ書き、`basis` はその回答の ID にする（それ以外は verify がエラーにする）。
+    issue に書かれていないことは、関係しない理由にならない。
+  - 決まっていない（`{ open: true }`）。質問の文は書かない（人には、対象と観点の名前のとおりに1点だけ聞く）。
+- `answers` は、質問して得た人の回答だけを書く（ID は `ANS-001` から）。最初は `{}` にする。
+- `openQuestions` には、入力と表示の観点以外の未確定の点を、`{ target, aspect }` で1件に1つの観点だけ書く（複数の点を並べると verify がエラーにする）。
 - 受け入れ条件には確かめ方（`verifiedBy`）を付ける。人が確かめるもの（human）は、画面で分かる形で `then` を書く。
   HTTPステータスやログなど人に確かめにくいものは automated にする。
 - issue のコメントで対象外とされたものは `outOfScope` に書く。
@@ -75,14 +86,14 @@ disable-model-invocation: true
 書いたら、次を実行し、エラーが無くなるまで直す。
 
 ```sh
-deno task check <ID>
-deno task verify <ID>
+bun docs/sdd/scripts/check.ts <ID>
+bun docs/sdd/scripts/verify.ts <ID>
 ```
 
 ## 4. HTMLを生成する
 
 ```sh
-deno task render <ID>
+bun docs/sdd/render/main.ts <ID>
 ```
 
 ## 5. 確認ポイント1: 未確定の点を1件ずつ質問する
@@ -91,18 +102,37 @@ deno task render <ID>
 点検で見つかった不足は受け入れ条件に追加し、決められないことは `openQuestions` に加える。
 あわせて `assumptions`（前提）を見直し、**利用者から見える振る舞いに関わる前提は `openQuestions` に移す**（確認の前に質問する）。
 
-`openQuestions` が空でなければ、`docs/sdd/guides/asking-questions.md` の手順で、**1件ずつ**質問する。
+**外から見える値は、受け入れ条件に具体的な値で書く。** 決まっていなければ `openQuestions` に加えて質問する。
+設計や実装に先送りしない（「上限は設計で決める」と書かない）。点検で、次の値が受け入れ条件にあるかを1つずつ確かめる。
+
+- 入力の上限と必須（文字数、件数、範囲）と、違反したときの結果
+- 表示の形（日付・時刻・数値・金額の書き方。例: `2026-10-10` か `2026/10/10 9:00` か）
+- 日時のタイムゾーン（サーバーの設定、特定の地域、利用者のブラウザのどれに合わせて表示するか）。表示の形とは別の1問として聞く
+- 件数（一度に表示する件数、ページの大きさ、ページの開き方）
+- 文言（空の状態、エラー、ボタン、メニューの名前）
+
+守ること（試行で崩れた点）: 機能の大枠は質問したのに、日付の形を実装で、入力の上限を設計で、AI が決めた回があった。
+並び順と件数を1つの質問にまとめ、並び順だけ答えられると、件数を推奨で埋めた回もあった。どれも受け入れテストで回答と食い違った。
+日時の形だけを質問してタイムゾーンを聞かず、設計でサーバーの設定（UTC）に合わせた回もあった（利用者は日本時間を求めていた）。
+観点を文章の一覧で渡した回は、書き手が思い出した観点しか点検しなかった。観点の扱いを自由な文で書かせた回は、
+聞いていない観点を「関係しない」や中身の合わない受け入れ条件で決めたことにし、質問の文に2点以上を入れた。
+関係しない扱いに issue の文を出どころとして書かせた回は、観点と関係の無い文を引用し、「issue に無い」を理由に観点を外した。
+観点は `values` の種類が出し、扱いには出どころを書き、関係しないかどうかも人に聞き、未確定は観点の名前で聞く。
+
+`values` の `open` も未確定の点である。`openQuestions` か `values` の `open` が残っていれば、
+`docs/sdd/guides/asking-questions.md` の手順で、**1件ずつ**質問する。1つの質問で聞くのは、その件の観点1つだけにする。
 
 1. 他の質問に最も影響するものを1件選び、選択肢と推奨を添えて聞く。返答を終えて回答を待つ。
-2. 回答を requirements.ts に反映し、`openQuestions` から消す。残りの未確定の点を見直す
+2. 回答を `answers` に ID を振って書き、requirements.ts に反映して `openQuestions` から消す（`values` の観点なら、受け入れ条件に書いて
+   `decidedBy` と `basis: { answer: "ANS-xxx" }` に変える。関係しないと答えたら `notApplicable` と、その回答の ID にする）。残りの未確定の点を見直す
    （回答で決まったものは消し、前提が変わったものは聞き方を変え、新しく必要になったものは加える）。
-3. `deno task check <ID>` と `deno task verify <ID>` を通す。
-4. `openQuestions` が空になるまで1〜3を繰り返す。
+3. `bun docs/sdd/scripts/check.ts <ID>` と `bun docs/sdd/scripts/verify.ts <ID>` を通す。
+4. `openQuestions` も `values` の `open` も無くなるまで1〜3を繰り返す。
 
 ## 6. 確認ポイント2: 要件全体を確認してもらう
 
-確認を頼む前に、`deno task verify <ID>` の**警告をすべて直す**（直さない警告は、理由を確認の中で示す）。
-`deno task render <ID>` でHTMLを生成し直し、次を**1つの返答にまとめて**示して回答を待つ（HTMLのパスだけを示さない）。
+確認を頼む前に、`bun docs/sdd/scripts/verify.ts <ID>` の**警告をすべて直す**（直さない警告は、理由を確認の中で示す）。
+`bun docs/sdd/render/main.ts <ID>` でHTMLを生成し直し、次を**1つの返答にまとめて**示して回答を待つ（HTMLのパスだけを示さない）。
 
 - 生成したHTMLのパス（`.sdd/out/<ID>/index.html`）。「受け入れテスト」の章が、受け入れテストで確かめる項目になることを伝える
 - 要件の要約: 機能要件ごとのEARSの文章、受け入れ条件の件数（正常系・境界値・異常系の内訳と、人が確かめるものの件数）、非機能要件、変えてはいけない振る舞い、前提、対象外
@@ -113,13 +143,13 @@ deno task render <ID>
 
 ## 7. コミットして push する
 
-1. `deno task check <ID>`、`deno task verify <ID>`、`deno task render <ID>` を実行する（`openQuestions` は空であること）。
+1. `bun docs/sdd/scripts/check.ts <ID>`、`bun docs/sdd/scripts/verify.ts <ID>`、`bun docs/sdd/render/main.ts <ID>` を実行する（`openQuestions` も `values` の `open` も残っていないこと）。
 2. `docs/specs/<ID>/` をコミットする（`spec.ts` から切り替えた場合は、その削除も含める）。コミットメッセージは `docs(<ID>): 要件を作成`。
 3. `git push -u origin <ブランチ名>` で push する（他の人の衝突チェックに見えるようにするため）。リモートが無ければ省く。
 
 ## 8. 報告する
 
 確定した要件の要点と、HTMLのパスを報告し、次の工程として sdd-design を案内する。
-PR/MR はこの時点では作らない（sdd-finish で作る）ことも伝える。
+PR/MR はこの時点では作らない（実装が完了した sdd-impl で作る）ことも伝える。
 この後、sdd-design は要件などから判断できない設計上の選択がある場合だけ質問し、sdd-tasks と sdd-impl は止まらずに進む。
 次に人が関わるのは、設計上の質問（あれば）と受け入れテストであることも伝える。

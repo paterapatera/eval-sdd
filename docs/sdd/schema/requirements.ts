@@ -1,4 +1,5 @@
-import type { AcId, BaseNfrId, FrId, InvId, KeysMatch, NfrId, NonEmpty } from "./ids.ts";
+import type { AcId, AnsId, BaseNfrId, FrId, InvId, KeysMatch, NfrId, NonEmpty } from "./ids.ts";
+import type { Answer, OpenQuestion, ValueCheck } from "./values.ts";
 
 /**
  * EARS（Easy Approach to Requirements Syntax）で書いた規則。
@@ -25,12 +26,12 @@ export type Ears =
   | { pattern: "optional"; subject?: string; feature: string; response: string }
   | { pattern: "unwanted"; subject?: string; condition: string; response: string }
   | {
-    pattern: "complex";
-    subject?: string;
-    state: string;
-    trigger: string;
-    response: string;
-  };
+      pattern: "complex";
+      subject?: string;
+      state: string;
+      trigger: string;
+      response: string;
+    };
 
 /** 受け入れ条件（Given/When/Then）。1つの具体例を書く。 */
 export type Scenario = {
@@ -106,15 +107,15 @@ export type NonFunctionalRequirement = {
  */
 export type NfrReviewEntry<N extends string = string> =
   | {
-    decision: "baseline";
-    note?: string;
-    /**
-     * このカテゴリの docs/sdd/nfr.ts の基準（BNFR-xxx）のうち、このissueでは確かめないものと、その理由。
-     * baseline のカテゴリに基準があれば、各基準はテストタスクで確かめるか（tasks の verifies に BNFR-xxx）、
-     * ここに理由を書く（verify が確かめる）。
-     */
-    waived?: Readonly<Record<BaseNfrId, string>>;
-  }
+      decision: "baseline";
+      note?: string;
+      /**
+       * このカテゴリの docs/sdd/nfr.ts の基準（BNFR-xxx）のうち、このissueでは確かめないものと、その理由。
+       * baseline のカテゴリに基準があれば、各基準はテストタスクで確かめるか（tasks の verifies に BNFR-xxx）、
+       * ここに理由を書く（verify が確かめる）。
+       */
+      waived?: Readonly<Record<BaseNfrId, string>>;
+    }
   | { decision: "added"; ids: NonEmpty<N> }
   | { decision: "notApplicable"; reason: string };
 
@@ -190,10 +191,19 @@ export type Requirements = {
   issueCoverage: readonly IssueCoverageItem[];
   /** 十分性のチェックリスト（docs/sdd/guides/writing-requirements.md） */
   checklist: SufficiencyChecklist;
+  /**
+   * この issue が作る・変える入力と表示（変えない既存のものは書かない）。値ごとに、種類の観点すべてに扱いを書く。
+   * 該当が無ければ [] にし、noValuesReason に理由を書く
+   */
+  values: readonly ValueCheck[];
+  /** values が空の理由。空のときは必須（verify が確かめる） */
+  noValuesReason?: string;
+  /** 質問への人の回答。values の出どころ（basis.answer）が ID で指す。まだ回答が無ければ {} */
+  answers: Readonly<Record<AnsId, Answer>>;
   /** 前提 */
   assumptions: readonly string[];
-  /** 未確定の点。要件全体の確認までに解消する */
-  openQuestions: readonly string[];
+  /** 入力と表示の観点以外の未確定の点。要件全体の確認までに解消する */
+  openQuestions: readonly OpenQuestion[];
   /** 対象外とする範囲 */
   outOfScope: readonly string[];
 };
@@ -213,6 +223,11 @@ export function defineRequirements<const T extends Requirements>(
     invariants: KeysMatch<T["invariants"], InvId>;
     nfrReview: NfrReview<keyof T["nonFunctional"] & string>;
     issueCoverage: readonly IssueCoverageItem<ReqIdOf<T> | AcIdOf<T["functional"]>>[];
+    answers: KeysMatch<T["answers"], AnsId>;
+    values: readonly ValueCheck<
+      AcIdOf<T["functional"]> | (keyof T["invariants"] & string),
+      keyof T["answers"] & string
+    >[];
   },
 ): T {
   return r;
@@ -224,14 +239,13 @@ export type DesignTargetIdOf<R extends Requirements> =
   | (keyof R["nonFunctional"] & string);
 
 /** 要件のすべてのID */
-export type ReqIdOf<R extends Requirements> =
-  | DesignTargetIdOf<R>
-  | (keyof R["invariants"] & string);
+export type ReqIdOf<R extends Requirements> = DesignTargetIdOf<R> | (keyof R["invariants"] & string);
 
 /** 受け入れ条件のID */
-export type AcIdOf<
-  F extends Readonly<Record<string, { acceptance: readonly Scenario[] }>>,
-> = F[keyof F] extends infer E ? E extends { acceptance: readonly (infer S)[] } ? S extends { id: infer I } ? I & AcId
+export type AcIdOf<F extends Readonly<Record<string, { acceptance: readonly Scenario[] }>>> = F[keyof F] extends infer E
+  ? E extends { acceptance: readonly (infer S)[] }
+    ? S extends { id: infer I }
+      ? I & AcId
+      : never
     : never
-  : never
   : never;

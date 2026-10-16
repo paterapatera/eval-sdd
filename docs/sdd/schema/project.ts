@@ -17,7 +17,13 @@ export type Config = {
    */
   issueIdPrefix?: string;
   /**
-   * ホスティングのCLI。issue の取得、PR/MR の作成、squash マージ、issue へのコメントに使う
+   * issue の取得先。省略時は gh（GitHub）。
+   * manual はチャットに貼られた本文だけを使い、CLIでは取りに行かない。
+   * PR/MR は forge で、issue とは別のサービスでもよい（使い方は docs/sdd/guides/issues.md）。
+   */
+  issues?: { cli: "gh" | "fj" | "jira" | "backlog" | "manual" };
+  /**
+   * PR/MR のホスティングのCLI。PR/MR の作成と squash マージに使う
    * （使い方は docs/sdd/guides/forge.md）。資格情報を取り出してAPIを直接呼ぶことはしない。
    */
   forge?: { cli: "gh" | "glab" | "fj" | "tea" };
@@ -28,7 +34,7 @@ export type Config = {
   ui?: boolean;
   /**
    * 対象プロジェクトのコマンド（リポジトリのルートで実行する）。コードの品質は、人のコードレビューではなく
-   * これらで担保する。sdd-impl が各タスクの最後に `deno task gate` で実行する（format → check → build → test）。
+   * これらで担保する。sdd-impl が各タスクの最後に `bun docs/sdd/scripts/gate.ts` で実行する（format → check → build → test）。
    * ツールの選定には propose-quality-tools スキルを使う。分からないものは書かない。
    */
   commands?: {
@@ -49,7 +55,7 @@ export type Config = {
     build?: string;
     /**
      * E2E テスト（ブラウザなどで、利用者と同じ操作をして確かめる。例: "bunx playwright test"）。
-     * 時間がかかるので、タスクごとの品質ゲートには含めず、`deno task gate --full` で実行する
+     * 時間がかかるので、タスクごとの品質ゲートには含めず、`bun docs/sdd/scripts/gate.ts --full` で実行する
      * （sdd-impl の完了時と sdd-finish の開始時）。アプリの起動が必要なら、コマンドの中で起動する。
      */
     e2e?: string;
@@ -72,11 +78,14 @@ export type Architecture = {
   stack: readonly { name: string; version?: string; purpose: string }[];
   /** モジュール（ディレクトリ単位の構成要素） */
   modules: Readonly<
-    Record<string, {
-      path: string;
-      responsibility: string;
-      dependsOn?: readonly string[];
-    }>
+    Record<
+      string,
+      {
+        path: string;
+        responsibility: string;
+        dependsOn?: readonly string[];
+      }
+    >
   >;
   /** 層の構成とルール（例: 「domain は infrastructure に依存しない」） */
   layers?: readonly { name: string; rule: string }[];
@@ -117,9 +126,7 @@ export function defineConventions<const T extends Conventions>(c: T): T {
 }
 
 /** プロジェクト全体の非機能要件（docs/sdd/nfr.ts） */
-export type BaselineNfrs = Readonly<
-  Record<BaseNfrId, Omit<NonFunctionalRequirement, "overrides">>
->;
+export type BaselineNfrs = Readonly<Record<BaseNfrId, Omit<NonFunctionalRequirement, "overrides">>>;
 
 export function defineBaselineNfrs<const T extends BaselineNfrs>(n: T): T {
   return n;

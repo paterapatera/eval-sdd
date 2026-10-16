@@ -24,7 +24,7 @@
 | 非機能要件（NFR） | traceability のコンポーネント、verifies に持つテストタスク |
 | 変えてはいけない振る舞い（INV） | verifies に持つテストタスク |
 | 設計のコンポーネント | refs に持つタスク、影響範囲（impact） |
-| 影響範囲（impact） | 他のブランチとの衝突（`deno task conflicts --issue <ID>` で確かめ直す） |
+| 影響範囲（impact） | 他のブランチとの衝突（`bun docs/sdd/scripts/conflicts.ts --issue <ID>` で確かめ直す） |
 
 すでに完了した（`status: "done"`）タスクが影響を受ける場合は、特に明示する。コードの修正が必要になるため。
 
@@ -37,9 +37,9 @@
 ## 4. 直して、検査して、HTMLを生成し直す
 
 ```sh
-deno task --config docs/sdd/deno.json check <ID>
-deno task --config docs/sdd/deno.json verify <ID>
-deno task --config docs/sdd/deno.json render <ID>
+bun docs/sdd/scripts/check.ts <ID>
+bun docs/sdd/scripts/verify.ts <ID>
+bun docs/sdd/render/main.ts <ID>
 ```
 
 - check と verify のエラーが無くなるまで直す。
@@ -54,7 +54,8 @@ deno task --config docs/sdd/deno.json render <ID>
 1. 原因を調べ、受け入れ条件どおりに動いていないのか、受け入れ条件そのものが違っていたのかを区別する。
 2. tasks（軽量モードは spec の tasks）の末尾にタスクを追加する。同じ不具合を防ぐテスト（画面なら E2E）を含める。
 3. 品質ゲートを通し、`docs/sdd/guides/commits.md` の形式でコミットする。
-4. `deno task acceptance <ID>` を通してから、受け入れテストをもう一度頼む。
+4. `bun docs/sdd/scripts/acceptance.ts <ID>` を通してから、受け入れテストをもう一度頼む。
+5. 開いている PR/MR があれば、修正をそこへ push する。新しくは作らない。マージしない。
 
 ## 受け入れテストでの、受け入れ条件の範囲外の調整
 
@@ -62,12 +63,15 @@ deno task --config docs/sdd/deno.json render <ID>
 
 1. 今後も守るべきこと（利用者から見えること）なら、受け入れ条件に加える（要件の変更なのでユーザーの了承を得る）。
    一度きりの調整なら、design.ts の decisions に記録する。
-2. コードを直し、品質ゲート（`deno task gate`）を通す。画面の変更なら、フロントエンドをビルドして画面で確かめる。
+2. コードを直し、品質ゲート（`bun docs/sdd/scripts/gate.ts`）を通す。画面の変更なら、フロントエンドをビルドして画面で確かめる。
 3. `fix(<ID>): 指摘を反映` としてコミットする。
 
 ## PR/MR を作った後に変更が入った場合
 
-sdd-finish の後（spec を削除した後）に変更が入った場合は、spec は直せないので、次を行う。
+実装の完了で PR/MR を開いたあと、受け入れテストの前と、不合格の修正は、spec を直して同じ PR/MR に push する。新しい PR/MR は作らない。
+
+spec を削除したあと（sdd-finish の反映のあと）に変更が入った場合は、spec は直せないので、次を行う。
 
 - 品質ゲートを通してからコミットする。
 - 要件が変わった場合（受け入れ条件を削除した、変えたなど）は、PR/MR の本文の要約を直す。
+- マージは、受け入れテストに合格しているときだけ sdd-finish が行う。

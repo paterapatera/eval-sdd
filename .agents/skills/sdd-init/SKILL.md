@@ -44,10 +44,10 @@ sdd-init はプロジェクトの前提を決める一度きりの作業なの�
 1. Gitリポジトリのルートにいることを確認する（`git rev-parse --show-toplevel`）。
    Gitリポジトリでなければ、`git init` してよいか、既定のブランチ名（推奨は `main`）をユーザーに確認し、
    `git init -b <既定のブランチ名>` で作る。
-2. `deno --version` を実行する。Deno が無ければ、次のインストール方法を案内して**止まる**。
+2. `bun --version` を実行する。Bun が無いか、1.4.3 未満なら、次のインストール方法を案内して**止まる**。
    黙って先に進めない。
-   - https://docs.deno.com/runtime/getting_started/installation/
-   - Deno 2 以上が必要。
+   - https://bun.sh
+   - Bun 1.4.3 以上が必要。
 3. `git status --porcelain` で作業ツリーを確認する。未コミットの変更があれば、続けてよいかをユーザーに確認する。
 4. 既定のブランチ（main など）にいる場合は、作業ブランチ（例: `sdd-init`。ブランチ名はすべて小文字）を作ってよいかを確認して作る。
    恒久ドキュメントは通常のPR/MRで main に入れる。
@@ -68,12 +68,12 @@ sdd-init はプロジェクトの前提を決める一度きりの作業なの�
 
 1. まず変更内容だけを確認する:
    ```sh
-   deno run --allow-read --allow-write --allow-run=git <SKILL_DIR>/scripts/install.ts --dry-run
+   bun <SKILL_DIR>/scripts/install.ts --dry-run
    ```
 2. 表示された内容をユーザーに伝え、実行してよいかを確認する。更新の場合、`[削除]` や `[更新]` があれば必ず伝える。
 3. 実行する:
    ```sh
-   deno run --allow-read --allow-write --allow-run=git <SKILL_DIR>/scripts/install.ts
+   bun <SKILL_DIR>/scripts/install.ts
    ```
 4. 終了コードが2（要対応）の場合は、表示された内容に従う。
    既存のhook管理がある場合は `references/hook-integration.md` を読み、
@@ -127,9 +127,12 @@ sdd-init はプロジェクトの前提を決める一度きりの作業なの�
 
 ### ホスティングのCLIと issue のID（どちらの案件でも行う）
 
-- 使っているホスティングのCLIを調べる（`gh`、`glab`、`fj`、`tea` のどれが使えるか。`git remote -v` の URL も手がかりにする）。
+- issue の取得先をユーザーに確かめる（`gh`、`fj`、`jira`、`backlog`、チャットに貼るだけなら `manual`）。
+  省略すると `gh` で取りに行く。`forge` と違う場合だけ `docs/sdd/config.ts` の `issues` に登録する
+  （例: `issues: { cli: "backlog" }`）。使い方は `docs/sdd/guides/issues.md` にある。
+- PR/MR のホスティングのCLIを調べる（`gh`、`glab`、`fj`、`tea` のどれが使えるか。`git remote -v` の URL も手がかりにする）。
   ユーザーに確かめたうえで、`docs/sdd/config.ts` の `forge` に登録する（例: `forge: { cli: "gh" }`）。
-  使い方は `docs/sdd/guides/forge.md` にある。
+  使い方は `docs/sdd/guides/forge.md` にある。issue の取得先とは別でよい。
 - **資格情報を取り出してAPIを直接呼ばない**（`git credential fill`、トークンの読み出し、curl での API 呼び出しなど）。
 - issue のIDに付ける接頭辞（例: `GH`、`FJ`）が決まっていれば、`docs/sdd/config.ts` の `issueIdPrefix` に登録する。
 
@@ -138,12 +141,12 @@ sdd-init はプロジェクトの前提を決める一度きりの作業なの�
 恒久ドキュメントを書いたら、毎回次を実行し、エラーが無くなるまで直す。
 
 ```sh
-deno task --config docs/sdd/deno.json check
+bun docs/sdd/scripts/check.ts
 ```
 
 ## 6. 確認してコミットする
 
-1. `deno task --config docs/sdd/deno.json doctor` を実行し、必須の項目に問題が無いことを確かめる。
+1. `bun docs/sdd/scripts/doctor.ts` を実行し、必須の項目に問題が無いことを確かめる。
    （architecture.ts などが無いという警告は、更新のときに恒久ドキュメントをまだ作っていない場合に出る。
    品質ゲートが未設定という警告は、新規案件で基盤issueの前なら想定どおり）
 2. ユーザーに次を報告する。
@@ -168,7 +171,7 @@ deno task --config docs/sdd/deno.json check
 5. 他のメンバーへの案内を伝える。pre-commit hook はコミットされないので、
    SDDを使うメンバーは各自で次を実行する必要がある。
    ```sh
-   deno run --allow-read --allow-write --allow-run=git <SKILL_DIR>/scripts/install.ts --hook-only
+   bun <SKILL_DIR>/scripts/install.ts --hook-only
    ```
 
 ## 7. 次の流れを案内する
@@ -181,7 +184,7 @@ sdd-init の後は、**アプリのコードを直接 main にコミットせず
 1. sdd-init の PR/MR をマージする（squash）。
 2. 基盤issue（機能の開発の前に、雛形・共通の部品・品質ツールとテスト・画面の土台を作るissue）を issueトラッカーに作る。
    文面は `references/new-project.md` の「基盤issueを案内する」で作ったもの。
-   `forge` を登録していれば、了承を得てCLIで作ってよい（`docs/sdd/guides/forge.md`）。
+   issue の取得先が `manual` でなければ、了承を得てその CLI で作ってよい（省略時は `gh`。`docs/sdd/guides/issues.md`）。
 3. 基盤issueを `/sdd-start <issue の番号>` から完全モードで進める（品質ツール、テストのツール、画面の土台の導入もこのissueで行う）。
 4. 基盤issueをマージしてから、機能のissueの並行開発を始める。
 
@@ -197,5 +200,5 @@ sdd-init の後に恒久ドキュメントを直す場合（規模の変更、�
 - 恒久ドキュメントの項目を**推測で埋めない**。分からない項目は書かずにおき、ユーザーへの質問として挙げる。
 - 更新のときは、恒久ドキュメントの既存の内容を消したり作り直したりしない。
 - 接続文字列、パスワード、APIキーなどの秘密情報を恒久ドキュメントに書かない。
-- `docs/sdd/` の道具（`schema/`、`scripts/`、`render/`、`guides/`、`deno.json`）は手で編集しない。
+- `docs/sdd/` の道具（`schema/`、`scripts/`、`render/`、`guides/`、`tsconfig.json`）は手で編集しない。
   変更が必要なら、配布元の `assets/sdd/` を直して sdd-init で更新する。

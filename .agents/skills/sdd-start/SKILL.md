@@ -14,8 +14,7 @@ issueの作業を始める。取り込み → 規模の判定 → ブランチ�
 - `references/issue-format.md`: `issue.md` の書き方
 - `references/sizing.md`: 規模の判定基準（完全モードか軽量モードか）
 
-`docs/sdd/deno.json` のタスクは、リポジトリのルートで `deno task --config docs/sdd/deno.json <タスク名>` として実行する。
-以下では `deno task <タスク名>` と略す。
+道具は、リポジトリのルートで `bun docs/sdd/scripts/<タスク名>.ts` として実行する。render は `bun docs/sdd/render/main.ts` である。
 
 ## 確認ポイント
 
@@ -35,27 +34,29 @@ issueの作業を始める。取り込み → 規模の判定 → ブランチ�
 ## 1. 前提を確認する
 
 1. `docs/sdd/config.ts` が無ければ、先に sdd-init を実行するよう案内して止まる。
-2. `deno task doctor` を実行する。
+2. `bun docs/sdd/scripts/doctor.ts` を実行する。
    - pre-commit hook が無い場合: 次を実行してよいかをユーザーに確認し、了承を得て実行する。
      ```sh
-     deno run --allow-read --allow-write --allow-run=git .agents/skills/sdd-init/scripts/install.ts --hook-only
+     bun .agents/skills/sdd-init/scripts/install.ts --hook-only
      ```
    - 型定義の版が違う場合: sdd-init で更新するよう案内して止まる。
-   - Deno が無い場合: インストール方法（https://docs.deno.com/runtime/getting_started/installation/ ）を案内して止まる。
+   - Bun が無いか 1.4.3 未満の場合: インストール方法（https://bun.sh ）を案内して止まる。
 3. `git status --porcelain` で未コミットの変更が無いことを確認する。あれば、どうするかをユーザーに確認する。
 
 ## 2. issueの内容を受け取る
 
 最初の指示に含まれているものを使う。足りないものは確認ポイント2でまとめて聞く。
 
-- `docs/sdd/config.ts` に `forge` があり、issue の番号が分かる場合は、`docs/sdd/guides/forge.md` に従ってCLIで本文とコメントを取得する。
+- issue の番号が分かる場合は、`docs/sdd/guides/issues.md` に従って CLI で本文とコメントを取得する。
+  取得先は `docs/sdd/config.ts` の `issues.cli`。省略時は `gh`。`manual` のときは取りに行かず、チャットの本文を使う。
+  PR/MR の `forge` とは別のサービスでもよい。
 - 本文がまったく無く、CLIでも取得できない場合は、規模の判定ができないので、先に本文だけを求める。
 
 | 項目 | 必須 | 受け取り方 |
 |---|---|---|
 | issueのID | 必須 | 例: `PROJ-123`、`RM-4567` |
 | issueのURL | 任意 | 無ければ「未記載」 |
-| 本文とコメント | 必須 | チャットに貼り付けるか、テキストファイルのパスで渡す |
+| 本文とコメント | 必須 | 番号が分かれば issue の CLI で取得する（省略時は `gh`）。`manual` のときはチャットに貼り付けるか、テキストファイルのパスで渡す |
 | 添付ファイル | 任意 | ファイルのパスで渡す（チャットに直接貼った画像はファイルとして保存できないため） |
 
 ### IDの正規化
@@ -76,7 +77,7 @@ IDはディレクトリ名とブランチ名に使う。
 
 ## 3. 構成が古くなっていないかを確認する
 
-`deno task drift` を実行する。構成に関わる変更が報告された場合は、architecture.ts と照らし合わせる。
+`bun docs/sdd/scripts/drift.ts` を実行する。構成に関わる変更が報告された場合は、architecture.ts と照らし合わせる。
 
 - **すでに反映済み**の場合（前のissueの sdd-finish で反映した変更など）: **質問せずに** `basedOn` を比較先のコミット
   （`git rev-parse origin/<既定ブランチ>`）に進め、`updatedAt` を今日の日付にする。sdd-finish では squash マージでハッシュが
@@ -98,7 +99,7 @@ IDはディレクトリ名とブランチ名に使う。
    - `branchPrefix` は `docs/sdd/config.ts` の値（既定は空文字。接頭辞は付けない）。
    - `slug` はissueの内容を表す英小文字・数字・ハイフンの短い語（2〜5語）。確認ポイント2で案を示す。
    - specのディレクトリ名（`docs/specs/<ID>`）は、IDの表記のまま（大文字を含んでよい）。
-     他のスキルは `deno task current` でブランチ名からIDを特定する（大文字小文字を区別しない）。
+     他のスキルは `bun docs/sdd/scripts/current.ts` でブランチ名からIDを特定する（大文字小文字を区別しない）。
 2. リモートがあれば最新の既定ブランチから作る。
    ```sh
    git fetch origin
@@ -120,7 +121,7 @@ IDはディレクトリ名とブランチ名に使う。
 手順4で控えた「触りそうなファイルやディレクトリ」を渡して実行する。
 
 ```sh
-deno task conflicts --paths <ファイルやディレクトリをカンマ区切りで>
+bun docs/sdd/scripts/conflicts.ts --paths <ファイルやディレクトリをカンマ区切りで>
 ```
 
 - `[重なり]` があれば、どのブランチの誰の作業と重なりそうかをユーザーに伝え、担当者との調整を勧める。
