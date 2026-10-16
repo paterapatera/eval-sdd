@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,12 +33,17 @@ class ProfileController extends Controller
     {
         $user = $request->authenticatedUser();
 
-        $user->fill($request->validated());
-        $user->save();
+        $validated = $request->validated();
+        $user->fill($validated);
 
-        if ($user->wasChanged('email')) {
+        $email = $validated['email'] ?? null;
+        $email = is_string($email) ? $email : null;
+
+        if ($this->shouldMarkEmailUnverified($user, $email)) {
             $user->email_verified_at = null;
         }
+
+        $user->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
@@ -59,5 +65,20 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function shouldMarkEmailUnverified(User $user, ?string $newEmail): bool
+    {
+        if ($newEmail === null) {
+            return false;
+        }
+
+        $originalEmail = $user->getOriginal('email');
+
+        if ($originalEmail === null) {
+            return $user->isDirty('email');
+        }
+
+        return $originalEmail !== $newEmail;
     }
 }
