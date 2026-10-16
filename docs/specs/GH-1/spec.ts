@@ -160,7 +160,7 @@ export default defineQuickSpec({
       description:
         "ProfileController::update で、save 前にメール変更を検知して email_verified_at を null にし、T-001 のテストを通す",
       refs: ["FR-001", "FR-002"],
-      status: "todo",
+      status: "done",
     },
     "T-003": {
       title: "画面でメール変更後の未確認表示とセキュリティ画面の案内を確かめる",
