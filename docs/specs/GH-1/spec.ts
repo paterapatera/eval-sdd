@@ -153,8 +153,8 @@ export default defineQuickSpec({
     check: [
       {
         url: "http://localhost:8000/login",
-        contains: "Log in",
-        note: "Sail 上でアプリが応答すること。AC-001・AC-003 は notes の手順でログインして確かめる",
+        contains: '"component":"auth\\/login"',
+        note: "Sail 上でログイン画面が配信されること。AC-001・AC-003 は notes の手順でログインして確かめる",
       },
     ],
     notes: [
