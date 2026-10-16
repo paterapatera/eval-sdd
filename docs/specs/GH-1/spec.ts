@@ -139,6 +139,41 @@ export default defineQuickSpec({
       "tests/Feature/Settings/ProfileUpdateTest.php",
     ],
   },
+  acceptanceGuide: {
+    setup: [
+      {
+        run: "./vendor/bin/sail artisan migrate --force",
+        note: "Sail 起動中を前提に、DB を最新にする",
+      },
+      { run: "./vendor/bin/sail npm run build", note: "フロント資産をビルドする" },
+    ],
+    accounts: [
+      {
+        id: "acceptance@example.com",
+        password: "password",
+        role: "メール確認済み（data のコマンドで作成）",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-001", "AC-004"],
+        run: './vendor/bin/sail artisan tinker --execute="App\\Models\\User::query()->where(\'email\', \'acceptance@example.com\')->delete(); App\\Models\\User::factory()->create([\'email\' => \'acceptance@example.com\', \'password\' => \'password\']);"',
+        expect: "acceptance@example.com の確認済みユーザーが1件いる",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: "auth\\/login",
+        note: "Sail の APP_URL（http://localhost:8000）でアプリが応答すること",
+      },
+    ],
+    notes: [
+      "受け入れ手順（人）: acceptance@example.com / password でログイン → /settings/profile でメールを別アドレス（例: changed@example.com）に変更して保存 → /settings/security を開く → /email/verify に誘導されること",
+      "名前だけ変更した場合は確認済みのままであること",
+      "メール変更時に確認メールが自動送信されないこと（プロフィールの再送で足りる）",
+    ],
+  },
   tasks: {
     "T-001": {
       title: "再現テストを書いて失敗することを確かめる",
