@@ -167,7 +167,7 @@ export default defineQuickSpec({
       description:
         "ProfileController::update でメール変更時に save 前に email_verified_at を null にし、T-001 のテストを通す",
       refs: ["FR-001", "FR-002"],
-      status: "todo",
+      status: "done",
     },
     "T-003": {
       title: "受け入れ条件の E2E を追加する",
