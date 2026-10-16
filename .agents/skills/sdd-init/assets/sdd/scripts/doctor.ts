@@ -1,11 +1,12 @@
 /**
  * SDDの導入状態を確認する。
  *
- * 使い方: deno task --config docs/sdd/deno.json doctor
+ * 使い方: bun docs/sdd/scripts/doctor.ts
  *
- * 確認する項目: Deno の版、型定義の版、pre-commit hook、.gitignore、恒久ドキュメント。
+ * 確認する項目: Bun の版、型定義の版、pre-commit hook、.gitignore、恒久ドキュメント。
  * 必須の項目に問題があれば終了コード1で終わる。
  */
+import { bunVersion, exit, readTextFile, runCommand } from "./lib/io.ts";
 import { join, resolve } from "node:path";
 import { SCHEMA_VERSION } from "../schema/mod.ts";
 import { loadConfig } from "./lib/config.ts";
@@ -18,15 +19,14 @@ const items: Item[] = [];
 const HOOK_COMMAND = "docs/sdd/scripts/pre-commit.sh";
 
 async function readIfExists(path: string): Promise<string | undefined> {
-  return (await exists(path)) ? await Deno.readTextFile(path) : undefined;
+  return (await exists(path)) ? await readTextFile(path) : undefined;
 }
 
-// Deno
-const [major] = Deno.version.deno.split(".").map(Number);
+const version = bunVersion();
 items.push(
-  major >= 2
-    ? { level: "ok", label: `Deno ${Deno.version.deno}` }
-    : { level: "ng", label: `Deno ${Deno.version.deno}`, detail: "Deno 2 以上が必要です" },
+  version
+    ? { level: "ok", label: `Bun ${version}` }
+    : { level: "ng", label: "Bun", detail: "Bun 1.4.3 以上が必要です" },
 );
 
 // 型定義の版
@@ -127,7 +127,36 @@ if (config.ui === undefined) {
   });
 }
 
-// ホスティングのCLI（PR/MRの作成、squash マージ、issue の取得とコメントに使う）
+async function cliRuns(cli: string): Promise<boolean | "missing"> {
+  try {
+    const { code } = await runCommand(cli, { args: ["--version"], stdout: "null", stderr: "null" });
+    return code === 0;
+  } catch {
+    return "missing";
+  }
+}
+
+// issue の取得先（省略時は gh。PR/MR の forge とは別でよい）
+const issueCli = config.issues?.cli ?? "gh";
+if (issueCli === "manual") {
+  items.push({ level: "ok", label: "issue は手動で取り込む" });
+} else {
+  const found = await cliRuns(issueCli);
+  items.push(
+    found === true
+      ? { level: "ok", label: `issue のCLI（${issueCli}）` }
+      : {
+          level: "warn",
+          label: "issue のCLI",
+          detail:
+            found === "missing"
+              ? `${issueCli} が見つかりません（docs/sdd/guides/issues.md）`
+              : `${issueCli} --version が失敗しました`,
+        },
+  );
+}
+
+// ホスティングのCLI（PR/MRの作成と squash マージに使う）
 if (!config.forge) {
   items.push({
     level: "warn",
@@ -135,25 +164,33 @@ if (!config.forge) {
     detail: "config.ts の forge がありません。gh / glab / fj / tea のどれを使うかを sdd-init で登録してください",
   });
 } else {
-  try {
-    const { code } = await new Deno.Command(config.forge.cli, { args: ["--version"], stdout: "null", stderr: "null" })
-      .output();
-    items.push(
-      code === 0
-        ? { level: "ok", label: `ホスティングのCLI（${config.forge.cli}）` }
-        : { level: "warn", label: "ホスティングのCLI", detail: `${config.forge.cli} --version が失敗しました` },
-    );
-  } catch {
-    items.push({ level: "warn", label: "ホスティングのCLI", detail: `${config.forge.cli} が見つかりません` });
-  }
+  const found = await cliRuns(config.forge.cli);
+  items.push(
+    found === true
+      ? { level: "ok", label: `ホスティングのCLI（${config.forge.cli}）` }
+      : {
+          level: "warn",
+          label: "ホスティングのCLI",
+          detail:
+            found === "missing"
+              ? `${config.forge.cli} が見つかりません`
+              : `${config.forge.cli} --version が失敗しました`,
+        },
+  );
 }
 
 // pre-commit hook（.git/hooks か、既存のhook管理の設定に組み込まれているか）
 const hooksDir = await gitOut(["rev-parse", "--git-path", "hooks"]);
 const hookFiles = [
   ...(hooksDir ? [resolve(ROOT, hooksDir, "pre-commit")] : []),
-  ...[".husky/pre-commit", ".pre-commit-config.yaml", "lefthook.yml", "lefthook.yaml", ".lefthook.yml", "package.json"]
-    .map((f) => join(ROOT, f)),
+  ...[
+    ".husky/pre-commit",
+    ".pre-commit-config.yaml",
+    "lefthook.yml",
+    "lefthook.yaml",
+    ".lefthook.yml",
+    "package.json",
+  ].map((f) => join(ROOT, f)),
   join(ROOT, ".simple-git-hooks.json"),
 ];
 let hookFound: string | undefined;
@@ -164,11 +201,13 @@ for (const f of hookFiles) {
   }
 }
 items.push(
-  hookFound ? { level: "ok", label: "pre-commit hook", detail: hookFound.slice(ROOT.length + 1) } : {
-    level: "ng",
-    label: "pre-commit hook",
-    detail: "設置されていません。sdd-init の install.ts を --hook-only 付きで実行してください",
-  },
+  hookFound
+    ? { level: "ok", label: "pre-commit hook", detail: hookFound.slice(ROOT.length + 1) }
+    : {
+        level: "ng",
+        label: "pre-commit hook",
+        detail: "設置されていません。sdd-init の install.ts を --hook-only 付きで実行してください",
+      },
 );
 
 // .gitignore
@@ -192,4 +231,4 @@ const icon = { ok: "✓", ng: "✕", warn: "!" };
 for (const i of items) console.log(`  ${icon[i.level]} ${i.label}${i.detail ? ` — ${i.detail}` : ""}`);
 const ng = items.filter((i) => i.level === "ng").length;
 console.log(ng ? `\n問題が ${ng} 件あります` : "\n問題ありません");
-Deno.exit(ng ? 1 : 0);
+exit(ng ? 1 : 0);
