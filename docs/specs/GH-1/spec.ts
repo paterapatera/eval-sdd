@@ -131,6 +131,38 @@ export default defineQuickSpec({
       "tests/Browser/Settings/ProfileEmailVerificationTest.php",
     ],
   },
+  acceptanceGuide: {
+    setup: [
+      { run: "./vendor/bin/sail artisan migrate --force", note: "テスト用 DB を最新にする" },
+      { run: "./vendor/bin/sail npm run build", note: "フロントをビルドする" },
+    ],
+    accounts: [
+      {
+        id: "acceptance-gh1@example.com",
+        password: "password",
+        role: "メール確認済みの一般ユーザー（受け入れテスト用）",
+      },
+    ],
+    data: [
+      {
+        acs: ["AC-001", "AC-003"],
+        run: './vendor/bin/sail artisan tinker --execute=\'App\\Models\\User::query()->where("email","acceptance-gh1@example.com")->delete(); App\\Models\\User::factory()->create(["email"=>"acceptance-gh1@example.com","password"=>"password"]);\'',
+        expect: "acceptance-gh1@example.com の確認済みユーザーが1件存在する",
+      },
+    ],
+    check: [
+      {
+        url: "http://localhost:8000/login",
+        contains: "Log in",
+        note: "Sail 上でアプリが応答すること。AC-001・AC-003 は notes の手順でログインして確かめる",
+      },
+    ],
+    notes: [
+      "前提: ./vendor/bin/sail up -d で Sail が起動していること",
+      "AC-001: acceptance-gh1@example.com / password でログイン → /settings/profile → Email を acceptance-gh2@example.com に変え Save → 「Your email address is unverified.」が表示される",
+      "AC-003: 上記の直後に /settings/security を開く → /email/verify に移り「Resend verification email」が表示される",
+    ],
+  },
   tasks: {
     "T-001": {
       title: "再現テストを書いて失敗することを確かめる",
@@ -156,7 +188,7 @@ export default defineQuickSpec({
         "Browser テストで、メール変更後にプロフィールに未確認の案内が出ることと、/settings/security がメール確認案内へ回ることを確かめる",
       refs: ["FR-001", "FR-002"],
       verifies: ["AC-001", "AC-003"],
-      status: "todo",
+      status: "done",
     },
   },
 });
