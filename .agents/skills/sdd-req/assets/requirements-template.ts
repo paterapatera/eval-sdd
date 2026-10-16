@@ -68,17 +68,15 @@ export default defineRequirements({
   // noInvariantsReason: "<理由（例: 新規作成で、既存の振る舞いに触れないため）>",
   // 非機能要件の検討結果。6つのカテゴリすべてを書く
   nfrReview: {
-    "可用性": { decision: "baseline" },
+    可用性: { decision: "baseline" },
     "性能・拡張性": { decision: "added", ids: ["NFR-001"] },
     "運用・保守性": { decision: "baseline" },
-    "移行性": { decision: "notApplicable", reason: "<理由>" },
-    "セキュリティ": { decision: "baseline" },
+    移行性: { decision: "notApplicable", reason: "<理由>" },
+    セキュリティ: { decision: "baseline" },
     "システム環境・エコロジー": { decision: "notApplicable", reason: "<理由>" },
   },
   // issue.md の「受け入れ条件」の箇条書きを1項目ずつ、そのまま source に写し、対応する要件を書く
-  issueCoverage: [
-    { source: "<issue.md の受け入れ条件の1項目>", coveredBy: ["FR-001", "AC-001"] },
-  ],
+  issueCoverage: [{ source: "<issue.md の受け入れ条件の1項目>", coveredBy: ["FR-001", "AC-001"] }],
   // 十分性のチェックリスト。全項目を点検して書く
   checklist: {
     actors: { result: "considered", note: "<利用者の種類と権限をどう扱ったか>" },
@@ -89,7 +87,29 @@ export default defineRequirements({
     consistency: { result: "considered", note: "<矛盾や用語の揺れを点検した結果>" },
     outOfScope: { result: "considered", note: "<何を対象外にしたか>" },
   },
+  // この issue が作る・変える入力と表示を1つずつ書く（変えない既存のものは書かない）。
+  // kind を選ぶと、その種類の観点がすべて必須になる（docs/sdd/schema/values.ts の VALUE_KINDS）。
+  // 決めた扱い（decidedBy）には出どころ（basis）を書く。推測は出どころにならない。
+  //   issue: issue.md からそのまま引用 / code: 既存の振る舞いを決めているファイルのパス / answer: answers の ID
+  // 関係しない（notApplicable）は、人がそう答えたときだけ書き、出どころはその回答の ID にする。
+  // issue に書かれていないことは関係しない理由にならない。決まっていなければ { open: true } にする（質問は対象と観点の名前で1件ずつ聞く）。
+  // 該当が無ければ [] にし、noValuesReason に理由を書く
+  values: [
+    {
+      target: "<入力欄や表示の名前>",
+      kind: "textDisplay",
+      aspects: {
+        long: { decidedBy: ["AC-002"], basis: { issue: "<issue.md の文をそのまま>" } },
+        lineBreak: { open: true },
+        empty: { decidedBy: ["AC-002"], basis: { code: "<既存のファイルのパス>" } },
+      },
+    },
+  ],
+  // 質問への人の回答。質問して答えを得たら、ID を振って書く。まだ回答が無ければ {}。
+  // 例: "ANS-001": { target: "<入力欄や表示の名前>", aspect: "<観点の名前>", answer: "<人が答えた内容>" }
+  answers: {},
   assumptions: ["<前提>"],
+  // 入力と表示の観点以外の未確定の点。1件に1つの対象の1つの観点。例: { target: "<画面や操作の名前>", aspect: "<遷移先>" }
   openQuestions: [],
   outOfScope: ["<対象外とする範囲>"],
 });
